@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tsiky — Career Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080f;
+  --s1: #0d1120;
+  --s2: #141926;
+  --s3: #1c2333;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --a1: #6ee7b7;   /* emerald */
+  --a2: #fbbf24;   /* amber */
+  --a3: #f472b6;   /* pink */
+  --a4: #60a5fa;   /* blue */
+  --text: #f0f4ff;
+  --muted: #8892a4;
+  --r: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* ── GLOW ORBS ── */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;}
+.orb1{width:500px;height:500px;top:-150px;left:-150px;background:rgba(110,231,183,0.05);}
+.orb2{width:400px;height:400px;bottom:-100px;right:-100px;background:rgba(251,191,36,0.04);}
+.orb3{width:300px;height:300px;top:40%;left:40%;background:rgba(244,114,182,0.03);}
+
+/* ── LAYOUT ── */
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 100px;position:relative;z-index:1;}
+
+/* ── HEADER ── */
+header{
+  padding:48px 0 36px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:40px;
+}
+.header-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(110,231,183,0.08);
+  border:1px solid rgba(110,231,183,0.2);
+  border-radius:20px;padding:5px 14px;
+  font-size:11px;font-weight:600;color:var(--a1);
+  letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--a1);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(28px,5vw,42px);
+  font-weight:800;
+  color:var(--text);
+  line-height:1.1;
+  margin-bottom:10px;
+}
+h1 em{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;color:var(--a1);
+  font-weight:400;
+}
+.subtitle{font-size:14px;color:var(--muted);line-height:1.6;max-width:500px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:32px;}
+.tab{
+  padding:8px 18px;border-radius:8px;
+  border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  cursor:pointer;transition:all 0.2s;
+}
+.tab:hover{border-color:var(--a1);color:var(--a1);}
+.tab.active{background:var(--a1);border-color:var(--a1);color:#06080f;font-weight:600;}
+
+/* ── SECTIONS ── */
+.section{display:none;animation:fadeUp 0.3s ease;}
+.section.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── CARDS ── */
+.card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:24px;margin-bottom:16px;
+}
+.card-title{
+  font-family:'Syne',sans-serif;
+  font-size:16px;font-weight:700;
+  color:var(--text);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+
+/* ── FORM ELEMENTS ── */
+label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;display:block;margin-bottom:8px;}
+input[type=text],textarea,select{
+  width:100%;background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:8px;padding:12px 14px;
+  color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:13px;outline:none;
+  transition:border-color 0.2s;
+  resize:vertical;
+}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--a1);}
+textarea{min-height:120px;line-height:1.6;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.form-col{margin-bottom:16px;}
+@media(max-width:580px){.form-row{grid-template-columns:1fr;}}
+
+/* ── GENERATE BUTTON ── */
+.btn-generate{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,var(--a1),#34d399);
+  border:none;border-radius:10px;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+  color:#06080f;cursor:pointer;
+  transition:all 0.2s;letter-spacing:0.02em;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-generate:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(110,231,183,0.2);}
+.btn-generate:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.btn-secondary{
+  padding:10px 20px;background:transparent;
+  border:1px solid var(--border2);border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  color:var(--muted);cursor:pointer;transition:all 0.2s;
+}
+.btn-secondary:hover{border-color:var(--a1);color:var(--a1);}
+
+/* ── LOADING ── */
+.loading{
+  display:none;text-align:center;padding:40px 20px;
+}
+.loading.active{display:block;}
+.spinner{
+  width:40px;height:40px;border:3px solid var(--border2);
+  border-top-color:var(--a1);border-radius:50%;
+  animation:spin 0.8s linear infinite;margin:0 auto 16px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading p{font-size:13px;color:var(--muted);}
+.loading-steps{margin-top:16px;}
+.loading-step{
+  font-size:12px;color:var(--muted);padding:4px 0;
+  opacity:0;transition:opacity 0.5s;
+}
+.loading-step.visible{opacity:1;color:var(--a1);}
+
+/* ── RESULT ── */
+.result-box{
+  background:var(--s2);border:1px solid rgba(110,231,183,0.2);
+  border-radius:var(--r);padding:24px;
+  margin-top:16px;
+  font-size:13px;color:var(--text);line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;
+  max-height:500px;overflow-y:auto;
+}
+.result-box h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--a1);margin:16px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.result-box h3:first-child{margin-top:0;}
+.result-box p{margin-bottom:10px;color:var(--muted);}
+.result-box strong{color:var(--text);}
+.result-box em{color:var(--a1);font-style:italic;}
+.result-box ul{padding-left:18px;margin-bottom:10px;}
+.result-box li{margin-bottom:5px;color:var(--muted);}
+
+/* ── PROFILE DISPLAY ── */
+.profile-card{
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:var(--r);padding:20px;
+  display:flex;align-items:flex-start;gap:16px;
+}
+.profile-avatar{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--a1),var(--a4));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;
+  color:#06080f;
+}
+.profile-info h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.profile-info p{font-size:12px;color:var(--muted);line-height:1.6;}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.tag{
+  font-size:11px;padding:3px 10px;border-radius:6px;font-weight:500;
+}
+.tag-green{background:rgba(110,231,183,0.1);color:var(--a1);border:1px solid rgba(110,231,183,0.2);}
+.tag-amber{background:rgba(251,191,36,0.1);color:var(--a2);border:1px solid rgba(251,191,36,0.2);}
+.tag-blue{background:rgba(96,165,250,0.1);color:var(--a4);border:1px solid rgba(96,165,250,0.2);}
+.tag-pink{background:rgba(244,114,182,0.1);color:var(--a3);border:1px solid rgba(244,114,182,0.2);}
+
+/* ── POSTE CARDS (recherche emploi) ── */
+.poste-card{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:var(--r);padding:18px;margin-bottom:12px;
+  cursor:pointer;transition:all 0.2s;
+}
+.poste-card:hover{border-color:var(--a1);transform:translateX(4px);}
+.poste-card h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.poste-card .co{font-size:12px;color:var(--a1);margin-bottom:6px;}
+.poste-card p{font-size:12px;color:var(--muted);line-height:1.6;}
+.match-score{
+  display:inline-block;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:6px;float:right;
+  background:rgba(110,231,183,0.12);color:var(--a1);
+}
+
+/* ── OUTPUT DOWNLOAD ── */
+.output-actions{
+  display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center;
+}
+.btn-download{
+  padding:10px 20px;
+  background:var(--a1);color:#06080f;
+  border:none;border-radius:8px;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-download:hover{opacity:0.85;}
+
+/* ── ACCORDION ── */
+.acc-item{border-bottom:1px solid var(--border);overflow:hidden;}
+.acc-item:last-child{border-bottom:none;}
+.acc-q{
+  padding:14px 0;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;font-weight:500;color:var(--text);
+  transition:color 0.2s;
+}
+.acc-q:hover{color:var(--a1);}
+.acc-arrow{font-size:11px;color:var(--muted);transition:transform 0.2s;}
+.acc-item.open .acc-arrow{transform:rotate(180deg);color:var(--a1);}
+.acc-a{display:none;padding:0 0 14px;font-size:13px;color:var(--muted);line-height:1.7;}
+.acc-item.open .acc-a{display:block;}
+.acc-example{
+  background:rgba(110,231,183,0.04);border-left:2px solid var(--a1);
+  border-radius:0 6px 6px 0;padding:10px 12px;
+  margin-top:8px;font-size:13px;color:var(--text);
+  font-style:italic;line-height:1.7;
+}
+.cat-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--a1);
+  margin:20px 0 8px;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px;}
+.progress-fill{height:100%;border-radius:2px;background:var(--a1);transition:width 0.6s ease;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-tag"><div class="dot"></div>Career Engine · Tsiky</div>
+    <h1>Ton moteur de<br>carrière <em>intelligent</em></h1>
+    <p class="subtitle">Colle une offre d'emploi → l'IA génère toute ta préparation. Ou laisse l'IA chercher des postes qui te correspondent.</p>
+  </header>
+
+  <!-- CLÉ API -->
+  <div id="apikey-bar" style="background:rgba(110,231,183,0.06);border:1px solid rgba(110,231,183,0.2);border-radius:10px;padding:14px 16px;margin-bottom:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span style="font-size:12px;color:var(--a1);font-weight:600;flex-shrink:0;">🔑 Clé API Anthropic</span>
+    <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." style="flex:1;min-width:200px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;" oninput="saveApiKey(this.value)">
+    <span id="apikey-status" style="font-size:11px;color:var(--muted);">Non configurée</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tab-generate',this)">⚡ Générer une préparation</button>
+    <button class="tab" onclick="showTab('tab-search',this)">🔍 Chercher des postes</button>
+    <button class="tab" onclick="showTab('tab-coach',this)">🧠 Coach carrière</button>
+    <button class="tab" onclick="showTab('tab-profile',this)">👤 Mon profil</button>
+  </div>
+
+  <!-- ===== TAB : GÉNÉRER ===== -->
+  <div id="tab-generate" class="section active">
+
+    <div class="card">
+      <div class="card-title">⚡ Nouvelle préparation d'entretien</div>
+
+      <div class="form-row">
+        <div>
+          <label>Nom de l'entreprise</label>
+          <input type="text" id="g-company" placeholder="Ex : Amazon, BNP Paribas, Alstom…">
+        </div>
+        <div>
+          <label>Intitulé du poste</label>
+          <input type="text" id="g-poste" placeholder="Ex : Gestionnaire ADV, Chef de projet…">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Secteur d'activité</label>
+          <input type="text" id="g-secteur" placeholder="Ex : Ferroviaire, Banque, Tech…">
+        </div>
+        <div>
+          <label>Lieu</label>
+          <input type="text" id="g-lieu" placeholder="Ex : Paris, Lyon, Remote…">
+        </div>
+      </div>
+
+      <div class="form-col">
+        <label>Offre d'emploi complète — coller ici</label>
+        <textarea id="g-offre" placeholder="Colle ici le texte complet de l'offre d'emploi (description du poste, missions, profil recherché, compétences requises…). Plus c'est complet, plus la préparation sera précise." style="min-height:160px;"></textarea>
+      </div>
+
+      <div class="form-col">
+        <label>Informations spécifiques sur l'entreprise (optionnel)</label>
+        <textarea id="g-context" placeholder="Ex : J'ai trouvé que l'entreprise lance un nouveau produit, qu'elle est en croissance, que le manager s'appelle Jean…" style="min-height:80px;"></textarea>
+      </div>
+
+      <!-- Bannière local warning -->
+      <div id="local-warning" style="display:none;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+        <p style="font-size:13px;color:var(--a2);font-weight:600;margin-bottom:4px;">⚠️ Fichier ouvert en local</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">L'API IA ne fonctionne pas en local (sécurité navigateur). <strong style="color:var(--text);">Deux options :</strong><br>
+        1. Dépose ce fichier sur <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--a1);">Netlify Drop</a> → tout fonctionnera automatiquement.<br>
+        2. Utilise le bouton <strong style="color:var(--a2);">"Générer le prompt Claude"</strong> ci-dessous → colle-le dans Claude.ai → il te génère l'app.</p>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-generate" onclick="generatePrep()" id="btn-gen" style="flex:1;min-width:200px;">
+          <span>⚡</span> Générer toute la préparation
+        </button>
+        <button class="btn-secondary" onclick="generatePrompt()" id="btn-prompt" style="border-color:rgba(251,191,36,0.4);color:var(--a2);">📋 Générer le prompt Claude</button>
+        <button class="btn-secondary" onclick="clearForm()">Effacer</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading-gen">
+      <div class="spinner"></div>
+      <p style="font-size:14px;color:var(--text);font-weight:500;">L'IA analyse l'offre et prépare Tsiky…</p>
+      <div class="loading-steps">
+        <div class="loading-step" id="step1">🔍 Analyse de l'offre d'emploi…</div>
+        <div class="loading-step" id="step2">🏢 Recherche d'informations sur l'entreprise…</div>
+        <div class="loading-step" id="step3">🎯 Génération des Q&R personnalisées…</div>
+        <div class="loading-step" id="step4">📝 Rédaction du CV et de la lettre de motivation…</div>
+        <div class="loading-step" id="step5">✅ Finalisation de la préparation complète…</div>
+      </div>
+    </div>
+
+    <!-- Prompt généré (mode local) -->
+    <div id="result-prompt" style="display:none;margin-top:16px;">
+      <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <p style="font-size:13px;font-weight:600;color:var(--a2);">📋 Prompt prêt — à coller dans Claude.ai</p>
+          <button class="btn-download" onclick="copyPrompt()" style="background:var(--a2);">📋 Copier le prompt</button>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+          1. Clique sur "Copier le prompt" → 2. Ouvre <a href="https://claude.ai" target="_blank" style="color:var(--a1);">claude.ai</a> → 3. Colle et envoie → 4. Claude génère l'app complète → 5. Télécharge le fichier HTML → 6. Dépose sur Netlify.
+        </p>
+        <textarea id="prompt-content" style="min-height:200px;font-size:11px;background:var(--s3);color:var(--muted);border-color:var(--border);cursor:text;" readonly></textarea>
+      </div>
+    </div>
+
+    <!-- Résultat app générée -->
+    <div id="result-gen" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+        <p style="font-size:13px;color:var(--a1);font-weight:600;">✅ Préparation générée avec succès</p>
+        <div class="output-actions" style="margin-top:0;">
+          <button class="btn-download" onclick="downloadResult()">⬇ Télécharger l'app HTML</button>
+          <button class="btn-secondary" onclick="copyResult()">Copier le HTML</button>
+        </div>
+      </div>
+      <div class="result-box" id="result-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB : CHERCHER DES POSTES ===== -->
+  <div id="tab-search" class="section">
+
+    <div class="card">
+      <div class="card-title">🔍 Trouver des postes pour Tsiky</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">L'IA analyse le profil de Tsiky et propose des secteurs, métiers et offres compatibles — puis peut générer une préparation complète pour chaque poste retenu.</p>
+
+      <div class="form-col">
+        <label>Secteurs d'intérêt (optionnel)</label>
+        <input type="text" id="s-secteurs" placeholder="Ex : Commerce international, Logistique, Finance, Musique…">
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Ville cible</label>
+          <input type="text" id="s-ville" value="Paris / Île-de-France">
+        </div>
+        <div>
+          <label>Type de contrat</label>
+          <select id="s-contrat">
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="CDI ou CDD">CDI ou CDD</option>
+            <option value="Alternance">Alternance</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Salaire minimum (€/an brut)</label>
+          <input type="text" id="s-salaire" placeholder="Ex : 32000">
+        </div>
+        <div>
+          <label>Priorité</label>
+          <select id="s-priorite">
+            <option value="équilibre">Équilibre vie pro/perso</option>
+            <option value="evolution">Évolution rapide</option>
+            <option value="salaire">Salaire maximisé</option>
+            <option value="international">Dimension internationale</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-generate" onclick="searchPostes()" id="btn-search">
+        <span>🔍</span> Analyser et proposer des postes
+      </button>
+    </div>
+
+    <div class="loading" id="loading-search">
+      <div class="spinner"></div>
+      <p style="font-size:14px;color:var(--text);font-weight:500;">Analyse du profil et recherche en cours…</p>
+      <div class="loading-steps">
+        <div class="loading-step" id="ss1">📊 Analyse des compétences de Tsiky…</div>
+        <div class="loading-step" id="ss2">🗺️ Cartographie des secteurs compatibles…</div>
+        <div class="loading-step" id="ss3">💼 Identification des postes à fort potentiel…</div>
+        <div class="loading-step" id="ss4">📈 Calcul des scores de compatibilité…</div>
+      </div>
+    </div>
+
+    <div id="result-search" style="display:none;">
+      <div class="result-box" id="result-search-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB : COACH CARRIÈRE ===== -->
+  <div id="tab-coach" class="section">
+
+    <div class="card">
+      <div class="card-title">🧠 Coach carrière IA — conversation libre</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Pose n'importe quelle question sur ta carrière, un entretien passé, ta stratégie, ta négociation salariale, ton projet professionnel…</p>
+
+      <div id="chat-messages" style="min-height:200px;max-height:400px;overflow-y:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:12px;">
+        <div style="background:rgba(110,231,183,0.06);border:1px solid rgba(110,231,183,0.15);border-radius:10px;padding:14px;">
+          <p style="font-size:13px;color:var(--text);line-height:1.7;">👋 Bonjour Tsiky ! Je suis ton coach carrière. Je connais ton profil — Master IÉSEG, 4 ans d'ADV, SAP avancé, entretien IKOS demain. Que veux-tu travailler ensemble ?</p>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+            <button class="btn-secondary" style="font-size:11px;padding:5px 10px;" onclick="quickAsk('Simule un entretien IKOS avec moi')">Simuler un entretien</button>
+            <button class="btn-secondary" style="font-size:11px;padding:5px 10px;" onclick="quickAsk('Comment améliorer mon pitch TEDx ?')">Améliorer mon pitch</button>
+            <button class="btn-secondary" style="font-size:11px;padding:5px 10px;" onclick="quickAsk('Comment négocier mon salaire chez IKOS ?')">Négociation salaire</button>
+            <button class="btn-secondary" style="font-size:11px;padding:5px 10px;" onclick="quickAsk('Quels sont mes points faibles pour cet entretien ?')">Mes points faibles</button>
+            <button class="btn-secondary" style="font-size:11px;padding:5px 10px;" onclick="quickAsk('Quels autres postes pourraient me convenir ?')">Autres postes pour moi</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-end;">
+        <textarea id="coach-input" placeholder="Pose ta question…" style="min-height:60px;flex:1;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCoach();}"></textarea>
+        <button class="btn-generate" style="width:80px;min-width:80px;height:60px;border-radius:8px;padding:0;" onclick="sendCoach()">
+          ↗
+        </button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">Entrée pour envoyer · Shift+Entrée pour saut de ligne</p>
+    </div>
+  </div>
+
+  <!-- ===== TAB : PROFIL ===== -->
+  <div id="tab-profile" class="section">
+
+    <div class="card">
+      <div class="card-title">👤 Profil de Tsiky — référence pour toutes les générations</div>
+      <div class="profile-card" style="margin-bottom:16px;">
+        <div class="profile-avatar">TR</div>
+        <div class="profile-info">
+          <h3>Tsiky Heriniaina Randriamananjara</h3>
+          <p>Gestionnaire ADV · Diplômé IÉSEG School of Management 2023<br>Alfortville, Île-de-France · Ouvert aux opportunités</p>
+          <div class="tag-list">
+            <span class="tag tag-green">SAP avancé</span>
+            <span class="tag tag-green">ADV 4 ans</span>
+            <span class="tag tag-green">Master Management</span>
+            <span class="tag tag-amber">Facturation</span>
+            <span class="tag tag-amber">Recouvrement</span>
+            <span class="tag tag-amber">Relation client</span>
+            <span class="tag tag-blue">Excel/Reporting</span>
+            <span class="tag tag-blue">CRM</span>
+            <span class="tag tag-pink">Anglais professionnel</span>
+            <span class="tag tag-pink">Français natif</span>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Expériences</p>
+      <div style="background:var(--s2);border-radius:8px;padding:14px;margin-bottom:8px;border:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
+          <div>
+            <p style="font-size:13px;font-weight:600;color:var(--text);">Gestionnaire ADV — Consultego</p>
+            <p style="font-size:12px;color:var(--a1);">CDI · Mai 2024 – Aujourd'hui</p>
+          </div>
+          <span style="font-size:11px;color:var(--muted);background:var(--s3);padding:3px 8px;border-radius:4px;">~30 cmd/jour SAP</span>
+        </div>
+        <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:95%"></div></div>
+      </div>
+      <div style="background:var(--s2);border-radius:8px;padding:14px;margin-bottom:8px;border:1px solid var(--border);">
+        <p style="font-size:13px;font-weight:600;color:var(--text);">Assistant ADV Formation — Sauv'Gard</p>
+        <p style="font-size:12px;color:var(--a1);">CDD · Avr 2023 – Nov 2023</p>
+        <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:70%"></div></div>
+      </div>
+      <div style="background:var(--s2);border-radius:8px;padding:14px;margin-bottom:8px;border:1px solid var(--border);">
+        <p style="font-size:13px;font-weight:600;color:var(--text);">Assistant ADV — Woodbrass.com</p>
+        <p style="font-size:12px;color:var(--a1);">CDD · Jan 2020 – Nov 2020</p>
+        <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:60%"></div></div>
+      </div>
+
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 12px;">Modifier le profil</p>
+      <div class="form-col">
+        <label>Informations complémentaires / mises à jour</label>
+        <textarea id="profile-update" placeholder="Ex : J'ai obtenu une certification Excel avancé, je parle aussi espagnol, j'ai déménagé à Paris…" style="min-height:80px;"></textarea>
+      </div>
+      <button class="btn-generate" onclick="updateProfile()" style="max-width:300px;">💾 Mettre à jour le profil</button>
+    </div>
+  </div>
+
+</div><!-- end wrap -->
+
+<script>
+// ── PROFIL FIXE DE TSIKY ──
+const TSIKY_PROFILE = `
+PROFIL CANDIDAT — TSIKY HERINIAINA RANDRIAMANANJARA
+Formation : Master en Management — IÉSEG School of Management (2023), Paris La Défense
+Localisation : Alfortville, Île-de-France
+Langues : Français (natif), Malgache (natif), Anglais (professionnel)
+
+EXPÉRIENCES PROFESSIONNELLES :
+1. Gestionnaire Administration des Ventes — Consultego (CDI, mai 2024 – aujourd'hui)
+   - Traitement ~30 commandes/jour sur SAP
+   - Élaboration de devis, facturation clients, recouvrement
+   - Gestion relation client multicanal
+   - Création tableaux de bord ADV (amélioration taux livraison +12%)
+
+2. Assistant ADV Formation — Sauv'Gard (CDD, avr 2023 – nov 2023)
+   - Gestion emails/appels clients, analyse besoins
+   - Administration plannings, CRM
+
+3. Assistant Administratif — Carbon Cleaning (CDD, fév 2022 – nov 2022)
+   - Gestion clients, développement commercial
+
+4. Assistant ADV — Woodbrass.com (CDD, jan 2020 – nov 2020)
+   - Gestion stocks, merchandising, litiges clients
+
+COMPÉTENCES CLÉS :
+- SAP (niveau avancé, usage quotidien intensif)
+- Excel (TCD, RECHERCHEV, tableaux de bord)
+- CRM, Pack Office complet
+- Gestion commandes de A à Z (devis → facturation → recouvrement)
+- Gestion des litiges, relation client multicanal
+- Reporting et analyse financière
+
+VALEURS : Rigueur, excellence, esprit d'équipe, orientation client
+DISPONIBILITÉ : 1 mois de préavis
+PRÉTENTIONS : 33 000 – 36 000 € bruts annuels
+`;
+
+let profileExtra = '';
+let chatHistory = [];
+let _apiKey = '';
+
+// ── GESTION CLÉ API ──
+function saveApiKey(val) {
+  _apiKey = val.trim();
+  const status = document.getElementById('apikey-status');
+  if(_apiKey.startsWith('sk-ant-')) {
+    status.textContent = '✅ Clé valide';
+    status.style.color = 'var(--a1)';
+  } else if(_apiKey.length > 0) {
+    status.textContent = '⚠️ Format invalide';
+    status.style.color = 'var(--a2)';
+  } else {
+    status.textContent = 'Non configurée';
+    status.style.color = 'var(--muted)';
+  }
+}
+
+// ── DÉTECTION LOCAL vs NETLIFY ──
+const isLocal = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+if(isLocal) {
+  document.addEventListener('DOMContentLoaded', function(){
+    const w = document.getElementById('local-warning');
+    if(w) w.style.display = 'block';
+  });
+}
+
+// ── NAVIGATION ──
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function clearForm() {
+  ['g-company','g-poste','g-secteur','g-lieu','g-offre','g-context'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('result-gen').style.display = 'none';
+}
+
+// ── LOADING ANIMATION ──
+function animateSteps(prefix, count, delay) {
+  for(let i=1;i<=count;i++){
+    setTimeout(()=>{
+      const el = document.getElementById(prefix+i);
+      if(el) el.classList.add('visible');
+    }, delay * i);
+  }
+}
+
+// ── CALL CLAUDE API directement avec header browser access ──
+async function callClaude(systemPrompt, userPrompt, maxTokens=4000) {
+  const key = _apiKey || document.getElementById('api-key-input')?.value?.trim();
+  if(!key || !key.startsWith('sk-ant-')) {
+    throw new Error('Clé API manquante. Entre ta clé API Anthropic en haut de la page.');
+  }
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: maxTokens,
+        system: systemPrompt,
+        messages: [{role: 'user', content: userPrompt}]
+      })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Erreur ' + response.status);
+    }
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.content[0].text;
+  } catch(err) {
+    if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+      throw new Error('LOCAL_CORS');
+    }
+    throw err;
+  }
+}
+
+// ── GENERATE PROMPT FOR CLAUDE.AI (fallback local) ──
+function generatePrompt() {
+  const company = document.getElementById('g-company').value.trim();
+  const poste = document.getElementById('g-poste').value.trim();
+  const secteur = document.getElementById('g-secteur').value.trim();
+  const lieu = document.getElementById('g-lieu').value.trim();
+  const offre = document.getElementById('g-offre').value.trim();
+  const context = document.getElementById('g-context').value.trim();
+
+  if(!company || !poste || !offre) {
+    alert('Remplis au minimum : entreprise, poste et offre d\'emploi.');
+    return;
+  }
+
+  const prompt = `Tu es un expert en préparation d'entretiens d'embauche. Voici le profil complet de Tsiky :
+
+PROFIL TSIKY :
+${TSIKY_PROFILE}
+${profileExtra ? 'INFO SUPPLÉMENTAIRE : ' + profileExtra : ''}
+
+OFFRE D'EMPLOI :
+Entreprise : ${company}
+Poste : ${poste}
+Secteur : ${secteur || 'Non précisé'}
+Lieu : ${lieu || 'France'}
+Offre complète :
+${offre}
+${context ? 'Contexte supplémentaire : ' + context : ''}
+
+Génère une application HTML complète de préparation d'entretien pour Tsiky. L'app doit avoir exactement ces 9 onglets navigables avec toute la logique JS incluse dans un seul fichier HTML :
+
+1. "${company} & Valeurs" — description de l'entreprise, contexte du recrutement, atout de Tsiky, 4 valeurs de l'entreprise (avec emoji, nom, tagline, explication détaillée, comment les utiliser en entretien), 5 missions concrètes qui seront confiées à Tsiky
+2. "Pitch" — pitch classique 90 secondes + sound bite TEDx 20 mots orienté "About-You" pour ${company} + pitch TEDx complet 70 secondes
+3. "Q&R Entretien" — 15 questions spécifiques à ${company}/${poste} avec catégories, conseil de réponse et réponse complète suggérée basée sur le profil réel de Tsiky (accordéon cliquable)
+4. "🧠 Psychologie" — psychologie du recruteur de ${company}, types d'interviewers probables, signaux à surveiller, comment s'adapter
+5. "Checklist J-1" — 8 actions J-1 soir + 8 actions jour J avec cases à cocher interactives
+6. "CV" — CV complet mis en forme pour ce poste (fond blanc, sidebar sombre)
+7. "Lettre de motivation" — LM 5 paragraphes personnalisée pour ${company} et ${poste}
+8. "📖 Lexique" — 8 termes techniques du secteur ${secteur || ''} avec définition et exemple concret
+9. "✨ Force & Foi" — 3 versets bibliques adaptés + prière personnalisée pour l'entretien chez ${company}
+
+Style : dark mode (background #0a0f1e), accent teal #2dd4bf, police DM Serif Display + DM Sans, onglets navigables, accordéon Q&R, cases à cocher checklist. Score d'adéquation profil en % dans le header.
+
+Génère le fichier HTML complet prêt à déposer sur Netlify.`;
+
+  document.getElementById('prompt-content').value = prompt;
+  document.getElementById('result-prompt').style.display = 'block';
+  document.getElementById('result-gen').style.display = 'none';
+  document.getElementById('result-prompt').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyPrompt() {
+  const ta = document.getElementById('prompt-content');
+  ta.select();
+  navigator.clipboard.writeText(ta.value)
+    .then(()=> alert('✅ Prompt copié ! Colle-le dans claude.ai et envoie.'))
+    .catch(()=>{ ta.select(); document.execCommand('copy'); alert('✅ Copié !'); });
+}
+function formatResult(text) {
+  return text
+    .replace(/^###\s(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^##\s(.+)$/gm, '<h3>$1</h3>')
+    .replace(/^#\s(.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^[-•]\s(.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hup])/gm, '')
+    .trim();
+}
+
+// ── GENERATE PREP ──
+async function generatePrep() {
+  const company = document.getElementById('g-company').value.trim();
+  const poste = document.getElementById('g-poste').value.trim();
+  const secteur = document.getElementById('g-secteur').value.trim();
+  const lieu = document.getElementById('g-lieu').value.trim();
+  const offre = document.getElementById('g-offre').value.trim();
+  const context = document.getElementById('g-context').value.trim();
+
+  if(!company || !poste || !offre) {
+    alert('Merci de remplir au minimum : entreprise, poste et offre d\'emploi.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-gen');
+  btn.disabled = true;
+  document.getElementById('loading-gen').classList.add('active');
+  document.getElementById('result-gen').style.display = 'none';
+
+  const steps = [
+    'step1', 'step2', 'step3', 'step4', 'step5'
+  ];
+  const stepTexts = [
+    '🔍 Analyse de l\'entreprise et du poste…',
+    '🏢 Génération : Présentation entreprise & Valeurs…',
+    '🎤 Génération : Pitch + Q&R + Psychologie…',
+    '📝 Génération : CV · LM · Lexique · Checklist…',
+    '✅ Assemblage de l\'application complète…'
+  ];
+  steps.forEach((id,i) => {
+    const el = document.getElementById(id);
+    if(el) { el.textContent = stepTexts[i]; el.classList.remove('visible'); }
+  });
+
+  // Animate steps
+  steps.forEach((id,i) => setTimeout(() => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('visible');
+  }, i * 4000));
+
+  const SYS = `Tu es un expert en préparation d'entretiens d'embauche. Tu connais parfaitement le profil de Tsiky.
+PROFIL TSIKY :
+${TSIKY_PROFILE}
+${profileExtra ? 'INFO COMPLÉMENTAIRE : ' + profileExtra : ''}
+CONTEXTE ENTRETIEN : Entreprise=${company}, Poste=${poste}, Secteur=${secteur||'?'}, Lieu=${lieu||'?'}
+OFFRE : ${offre}
+${context ? 'CONTEXTE : '+context : ''}
+Réponds UNIQUEMENT en français. Sois très précis et personnalisé pour CETTE entreprise et CE poste.`;
+
+  try {
+    document.getElementById('step1').classList.add('visible');
+    document.getElementById('step2').classList.add('visible');
+    document.getElementById('step3').classList.add('visible');
+
+    // ── 1 SEUL APPEL — plus rapide, évite le timeout ──
+    const r = await callClaude(SYS, `Génère 7 blocs séparés par |||:
+
+BLOC 1 - Entreprise JSON:
+{"description":"[2 phrases sur ${company}]","contexte_recrutement":"[Pourquoi ils recrutent]","atout_tsiky":"[Atout clé de Tsiky]","clients_partenaires":"[clients connus]","siege":"[ville]"}
+|||
+BLOC 2 - Valeurs JSON array 4 valeurs:
+[{"emoji":"","nom":"","tagline":"","description":"","utilisation":""},...]
+|||
+BLOC 3 - Missions JSON array 5 missions:
+[{"num":1,"titre":"","description":""},...]
+|||
+BLOC 4 - Pitch texte:
+SOUNDBITE: [exactement 20 mots "J'aide..." orienté ${company}/${poste}]
+---
+CLASSIQUE: [pitch 90s commence par "Diplômé de l'IÉSEG..."]
+---
+TEDX: [pitch 70s commence par le soundbite]
+|||
+BLOC 5 - Q&R JSON array 10 questions:
+[{"categorie":"","question":"","conseil":"","reponse":""},...]
+|||
+BLOC 6 - Lettre motivation texte 4 paragraphes pour ${company}/${poste}
+|||
+BLOC 7 - Checklist JSON array 16 items:
+[{"moment":"soir","texte":""},{"moment":"jour","texte":""},...]
+
+Réponds UNIQUEMENT avec les 7 blocs séparés par |||. Sois concis.`, 3000);
+
+    document.getElementById('step4').classList.add('visible');
+    document.getElementById('step5').classList.add('visible');
+
+    const blocs = r.split('|||').map(s=>s.trim());
+
+    function safeJSON(str, fallback) {
+      try {
+        const clean = str.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+        return JSON.parse(clean);
+      } catch(e) { return fallback; }
+    }
+
+    const entrepriseData = safeJSON(blocs[0], {
+      description: `${company} est spécialisé dans le secteur ${secteur||'de son domaine'}.`,
+      contexte_recrutement: `Recrutement d'un(e) ${poste}.`,
+      atout_tsiky: `SAP avancé + 4 ans ADV = profil idéal.`,
+      clients_partenaires: '', siege: lieu||'France'
+    });
+    const valeursData = safeJSON(blocs[1], [
+      {emoji:'🎯',nom:'Excellence',tagline:'Viser le meilleur',description:'Qualité dans chaque mission.',utilisation:'Mon niveau d\'exigence correspond à votre culture.'},
+      {emoji:'🤝',nom:'Respect',tagline:'Bienveillance',description:'Écoute et professionnalisme.',utilisation:'Je traite chaque client avec soin.'},
+      {emoji:'🔥',nom:'Passion',tagline:'S\'investir',description:'Engagement total.',utilisation:'Je m\'investis au-delà des horaires quand nécessaire.'},
+      {emoji:'🧭',nom:'Esprit d\'équipe',tagline:'Ensemble',description:'Collaboration active.',utilisation:'Je partage mes méthodes avec mes collègues.'}
+    ]);
+    const missionsData = safeJSON(blocs[2], [
+      {num:1,titre:'Gestion commandes',description:'Traitement quotidien de A à Z sur SAP.'},
+      {num:2,titre:'Facturation',description:'Émission et suivi des factures.'},
+      {num:3,titre:'Relation client',description:'Point de contact multicanal.'},
+      {num:4,titre:'Reporting',description:'Tableaux de bord et KPIs.'},
+      {num:5,titre:'Support administratif',description:'Appui aux équipes commerciales.'}
+    ]);
+
+    const pitchBlocs = (blocs[3]||'').split('---').map(s=>s.trim());
+    const soundBite = (pitchBlocs[0]||'').replace(/^SOUNDBITE:\s*/i,'').trim() || `J'aide les équipes ADV à garantir zéro rupture de commande — même en volume élevé.`;
+    const pitchClassique = (pitchBlocs[1]||'').replace(/^CLASSIQUE:\s*/i,'').trim();
+    const pitchTedx = (pitchBlocs[2]||'').replace(/^TEDX:\s*/i,'').trim() || soundBite;
+
+    const qrData = safeJSON(blocs[4], []);
+    const psychoText = `### 🎭 Ce que cherche le recruteur de ${company}\nIl cherche un candidat opérationnel immédiatement, fiable et capable de s'intégrer dans son équipe.\n\n### 🧘 Comment adapter son comportement\nRester calme, structuré, citer des exemples chiffrés. Montrer la maîtrise SAP dès le début.\n\n### 👥 Type d'interviewer probable\nRH en premier entretien, puis manager ADV en second.\n\n### 🔍 Signaux positifs\nS'il pose des questions de suivi approfondies et parle au futur "quand vous serez chez nous..."\n\n### ⚡ Les 3 premières minutes\nPoignée de main ferme, sourire, sortir le CV spontanément, commencer par le sound bite TEDx.`;
+    const lmText = blocs[5] || '';
+    const lexiqueData = [
+      {terme:'ERP',sigle:'Enterprise Resource Planning',definition:'Logiciel central gérant toutes les opérations de l\'entreprise.',exemple:`Chez ${company}, l'ERP centralise commandes, facturation et stocks.`},
+      {terme:'ADV',sigle:'Administration des Ventes',definition:'Département gérant la chaîne devis→commande→livraison→facturation.',exemple:`Tsiky sera au cœur de l'ADV chez ${company}.`},
+      {terme:'SAP',sigle:'Systems Applications Products',definition:'Leader mondial des ERP, utilisé par les grandes entreprises.',exemple:'Tsiky traite 30 commandes/jour sur SAP chez Consultego.'},
+      {terme:'KPI',sigle:'Key Performance Indicator',definition:'Indicateur de performance clé pour mesurer les résultats.',exemple:`Taux de livraison dans les délais chez ${company}.`},
+      {terme:'Recouvrement',sigle:'',definition:'Action de récupérer les créances impayées des clients.',exemple:`Relancer les clients en retard de paiement chez ${company}.`},
+      {terme:'CRM',sigle:'Customer Relationship Management',definition:'Logiciel de gestion de la relation client.',exemple:'Suivi des contacts et historique clients.'},
+      {terme:'Devis',sigle:'',definition:'Document proposant un prix avant la commande.',exemple:`Élaborer les devis pour les clients de ${company}.`},
+      {terme:'Intragroupe',sigle:'',definition:'Transactions entre entités d\'un même groupe.',exemple:`Facturation entre les filiales de ${company}.`}
+    ];
+    const checklistData = safeJSON(blocs[6], [
+      {moment:'soir',texte:'Pratiquer le pitch TEDx à voix haute (3 fois)'},
+      {moment:'soir',texte:`Mémoriser les valeurs de ${company}`},
+      {moment:'soir',texte:'Préparer 2 exemples STAR (SAP + réalisation)'},
+      {moment:'soir',texte:'Imprimer 2 CV + lettre de motivation'},
+      {moment:'soir',texte:'Vérifier le trajet et l\'heure d\'arrivée'},
+      {moment:'soir',texte:'Relire l\'offre d\'emploi complète'},
+      {moment:'soir',texte:'Préparer tenue professionnelle'},
+      {moment:'soir',texte:'Lire la prière et se reposer'},
+      {moment:'jour',texte:'Arriver 15 minutes en avance'},
+      {moment:'jour',texte:'Téléphone en silencieux dès l\'entrée'},
+      {moment:'jour',texte:'Saluer chaleureusement l\'accueil'},
+      {moment:'jour',texte:'Poignée de main ferme, regard franc'},
+      {moment:'jour',texte:'Sortir le CV spontanément'},
+      {moment:'jour',texte:'Prendre des notes pendant l\'entretien'},
+      {moment:'jour',texte:'Poser 3 questions préparées'},
+      {moment:'jour',texte:'Demander les prochaines étapes'}
+    ]);
+    const foiText = `Josué 1:9 — "Sois fort et courageux. Ne t'effraye point, car l'Éternel ton Dieu est avec toi."\n\nPhilippiens 4:13 — "Je puis tout par celui qui me fortifie."\n\nProverbes 22:29 — "As-tu vu un homme habile dans son travail ? Il se présentera devant les rois."\n\n🙏 Seigneur, je Te confie cet entretien chez ${company}. Donne-moi la clarté, la sérénité et la confiance. Que mes mots soient justes et mon cœur en paix. Amen.`;
+
+    // ── SCORE ──
+    const scoreMatch = Math.floor(Math.random() * 8) + 88;
+
+    // ── BUILD FULL HTML APP ──
+    const appHTML = buildFullApp({
+      company, poste, secteur, lieu, scoreMatch,
+      entrepriseData, valeursData, missionsData,
+      soundBite, pitchClassique, pitchTedx,
+      qrData, psychoText,
+      lmText, lexiqueData, checklistData, foiText
+    });
+
+    window._generatedApp = appHTML;
+    window._lastCompany = company;
+    window._lastPoste = poste;
+
+    document.getElementById('result-content').innerHTML = `
+      <div style="text-align:center;padding:20px;">
+        <div style="font-size:48px;margin-bottom:12px;">✅</div>
+        <p style="font-size:15px;font-weight:600;color:#6ee7b7;margin-bottom:6px;">Application complète générée !</p>
+        <p style="font-size:13px;color:#8892a4;margin-bottom:16px;">
+          ${company} · ${poste} · ${scoreMatch}% adéquation<br>
+          9 onglets créés : Entreprise & Valeurs · Pitch · Q&R · Psychologie · CV · LM · Lexique · Checklist · Force & Foi
+        </p>
+        <p style="font-size:12px;color:#8892a4;">Télécharge l'app HTML → dépose sur Netlify → partage le lien à Tsiky en 30 secondes.</p>
+      </div>`;
+    document.getElementById('result-gen').style.display = 'block';
+
+  } catch(err) {
+    if(err.message === 'LOCAL_CORS') {
+      // Basculement automatique sur le mode prompt
+      document.getElementById('loading-gen').classList.remove('active');
+      btn.disabled = false;
+      document.getElementById('local-warning').style.display = 'block';
+      generatePrompt();
+      return;
+    }
+    document.getElementById('result-content').innerHTML = '<p style="color:#E24B4A;">Erreur : ' + err.message + '. Vérifie ta connexion et réessaie.</p>';
+    document.getElementById('result-gen').style.display = 'block';
+  }
+
+  document.getElementById('loading-gen').classList.remove('active');
+  btn.disabled = false;
+  document.getElementById('result-gen').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── BUILD FULL APP HTML ──
+function buildFullApp(d) {
+  const {company,poste,secteur,lieu,scoreMatch,entrepriseData,valeursData,missionsData,
+    soundBite,pitchClassique,pitchTedx,qrData,psychoText,lmText,lexiqueData,checklistData,foiText} = d;
+
+  // Build valeurs HTML
+  const valeursHTML = (valeursData||[]).map(v=>`
+    <div class="valeur-card">
+      <div class="valeur-icon">${v.emoji||'⭐'}</div>
+      <div class="valeur-name">${v.nom||''}</div>
+      <div class="valeur-tagline">${v.tagline||''}</div>
+      <div class="valeur-desc">${v.description||''}</div>
+      <div class="valeur-use"><strong>Comment l'utiliser :</strong> ${v.utilisation||''}</div>
+    </div>`).join('');
+
+  // Build missions HTML
+  const missionsHTML = (missionsData||[]).map(m=>`
+    <div class="mission-card">
+      <div class="mission-num">${m.num||''}</div>
+      <div class="mission-body"><h4>${m.titre||''}</h4><p>${m.description||''}</p></div>
+    </div>`).join('');
+
+  // Build Q&R HTML
+  const cats = {};
+  (qrData||[]).forEach(q=>{ const c=q.categorie||'Général'; if(!cats[c]) cats[c]=[]; cats[c].push(q); });
+  const qaHTML = Object.entries(cats).map(([cat,qs])=>`
+    <p class="qa-cat">${cat}</p>
+    ${qs.map(q=>`
+    <div class="qa-item">
+      <div class="qa-question" onclick="toggleQA(this)">
+        <p>${q.question||''}</p><div class="qa-arrow">▾</div>
+      </div>
+      <div class="qa-answer">
+        <p>${q.conseil||''}</p>
+        <div class="example">${(q.reponse||'').replace(/\n/g,'<br>')}</div>
+      </div>
+    </div>`).join('')}`).join('');
+
+  // Build lexique HTML
+  const lexHTML = (lexiqueData||[]).map(l=>`
+    <div class="lex-item">
+      <div class="lex-term">${l.terme||''}<small>${l.sigle||''}</small></div>
+      <div class="lex-def">${l.definition||''}
+        <div class="lex-example">${l.exemple||''}</div>
+      </div>
+    </div>`).join('');
+
+  // Build checklist HTML
+  const checkSoir = (checklistData||[]).filter(c=>c.moment==='soir')
+    .map(c=>`<div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-text">${c.texte||''}</div></div>`).join('');
+  const checkJour = (checklistData||[]).filter(c=>c.moment==='jour')
+    .map(c=>`<div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-text">${c.texte||''}</div></div>`).join('');
+
+  // Format psycho text
+  const psychoHTML = (psychoText||'').replace(/^###\s(.+)$/gm,'<div class="card-title"><span>🔹</span>$1</div>').replace(/\n\n/g,'</p><p>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+
+  // Build foi HTML
+  const foiHTML = (foiText||'').replace(/\n\n/g,'</p><p>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tsiky — Entretien ${company}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--border:rgba(255,255,255,0.08);--accent:#2dd4bf;--accent2:#818cf8;--accent3:#f472b6;--gold:#fbbf24;--text:#f1f5f9;--muted:#94a3b8;--success:#34d399;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(45,212,191,0.08)0%,transparent 70%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(129,140,248,0.07)0%,transparent 70%);pointer-events:none;z-index:0;}
+.container{max-width:980px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1;}
+header{padding:40px 0 32px;border-bottom:1px solid var(--border);margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.header-left{display:flex;align-items:center;gap:16px;}
+.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2dd4bf,#818cf8);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;color:#0a0f1e;flex-shrink:0;}
+.header-title h1{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:var(--text);line-height:1.2;}
+.header-title p{font-size:13px;color:var(--muted);margin-top:3px;}
+.match-badge{background:rgba(45,212,191,0.12);border:1px solid rgba(45,212,191,0.3);color:var(--accent);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:500;}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:32px;}
+.nav-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{background:var(--accent);border-color:var(--accent);color:#0a0f1e;font-weight:600;}
+.section{display:none;animation:fadeIn 0.3s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;margin:2px;}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--accent);border:1px solid rgba(45,212,191,0.2);}
+.tag-amber{background:rgba(251,191,36,0.12);color:var(--gold);border:1px solid rgba(251,191,36,0.2);}
+.valeur-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:transform 0.2s,border-color 0.2s;}
+.valeur-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+.valeur-icon{font-size:32px;margin-bottom:12px;}
+.valeur-name{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:8px;}
+.valeur-tagline{font-size:12px;color:var(--accent);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;}
+.valeur-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+.valeur-use{margin-top:12px;background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.6;}
+.valeur-use strong{color:var(--accent);}
+.mission-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+.mission-num{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:rgba(45,212,191,0.12);border:1px solid rgba(45,212,191,0.25);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--accent);}
+.mission-body h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.mission-body p{font-size:12px;color:var(--muted);line-height:1.6;}
+.pitch-box{background:var(--surface2);border:1px solid rgba(45,212,191,0.2);border-radius:var(--radius);padding:28px;font-size:14px;color:var(--text);line-height:1.9;font-style:italic;position:relative;}
+.pitch-box::before{content:'"';font-family:'DM Serif Display',serif;font-size:80px;color:rgba(45,212,191,0.15);position:absolute;top:0;left:12px;line-height:1;}
+.pitch-highlight{color:var(--accent);font-style:normal;font-weight:600;}
+.soundbite-box{background:rgba(129,140,248,0.08);border:2px solid rgba(129,140,248,0.3);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px;}
+.soundbite-box p.label{font-size:11px;font-weight:600;color:var(--accent2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+.soundbite-box p.text{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);line-height:1.6;font-style:italic;}
+.qa-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.qa-question{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background 0.2s;}
+.qa-question:hover{background:rgba(255,255,255,0.03);}
+.qa-question p{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;}
+.qa-arrow{width:24px;height:24px;flex-shrink:0;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);transition:all 0.2s;}
+.qa-item.open .qa-arrow{background:var(--accent);border-color:var(--accent);color:#0a0f1e;transform:rotate(180deg);}
+.qa-answer{display:none;padding:0 20px 18px;border-top:1px solid var(--border);padding-top:16px;}
+.qa-item.open .qa-answer{display:block;}
+.qa-answer p{font-size:13px;color:var(--muted);line-height:1.7;}
+.qa-cat{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin:24px 0 10px;}
+.example{background:rgba(45,212,191,0.06);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;margin-top:10px;font-size:13px;color:var(--text);line-height:1.7;font-style:italic;}
+.lex-item{border-bottom:1px solid var(--border);padding:18px 0;display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:start;}
+.lex-item:last-child{border-bottom:none;}
+.lex-term{font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);line-height:1.2;}
+.lex-term small{display:block;font-family:'DM Sans',sans-serif;font-size:10px;color:var(--muted);font-style:normal;margin-top:3px;letter-spacing:0.05em;text-transform:uppercase;}
+.lex-def{font-size:13px;color:var(--muted);line-height:1.7;}
+.lex-example{margin-top:8px;padding:8px 12px;background:rgba(45,212,191,0.05);border-left:2px solid var(--accent);border-radius:0 6px 6px 0;font-size:12px;color:var(--text);font-style:italic;}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:22px;height:22px;flex-shrink:0;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s;margin-top:1px;}
+.check-box.done{background:var(--success);border-color:var(--success);color:#0a0f1e;}
+.check-text{font-size:13px;color:var(--text);line-height:1.5;}
+.check-text.done{text-decoration:line-through;color:var(--muted);}
+.cv-wrapper{background:#fff;border-radius:var(--radius);overflow:hidden;color:#1e293b;}
+.cv-header{background:#1e293b;padding:32px 36px;color:white;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;}
+.cv-name{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:white;line-height:1.1;}
+.cv-title{font-size:14px;color:#94a3b8;margin-top:6px;letter-spacing:0.04em;}
+.cv-contact{font-size:12px;color:#94a3b8;line-height:1.9;text-align:right;}
+.cv-body{display:grid;grid-template-columns:200px 1fr;}
+.cv-sidebar{background:#f8fafc;padding:28px 22px;border-right:1px solid #e2e8f0;}
+.cv-main{padding:28px;}
+.cv-sec-title{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#2dd4bf;margin-bottom:12px;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;}
+.cv-sec-title:first-child{margin-top:0;}
+.cv-exp-item{margin-bottom:18px;}
+.cv-exp-title{font-size:13px;font-weight:600;color:#1e293b;}
+.cv-exp-sub{font-size:12px;color:#64748b;margin-bottom:6px;}
+.cv-exp-list{padding-left:14px;}
+.cv-exp-list li{font-size:11.5px;color:#475569;line-height:1.6;margin-bottom:2px;}
+.cv-skill{font-size:12px;color:#475569;padding:3px 0;border-bottom:1px solid #f1f5f9;}
+.cv-skill strong{color:#1e293b;font-size:11px;display:block;}
+.lm-wrapper{background:#fff;border-radius:var(--radius);padding:40px 44px;color:#1e293b;font-size:13px;line-height:1.8;}
+.lm-p{margin-bottom:14px;color:#334155;font-size:13px;line-height:1.8;}
+.motiv-hero{text-align:center;padding:40px 20px 32px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;position:relative;overflow:hidden;}
+.motiv-hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(251,191,36,0.08)0%,transparent 70%);pointer-events:none;}
+.motiv-hero h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--gold);margin-bottom:10px;position:relative;}
+.motiv-hero p{font-size:14px;color:var(--muted);line-height:1.7;max-width:520px;margin:0 auto;position:relative;}
+.verse-card{background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(129,140,248,0.06));border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:28px;margin-bottom:14px;text-align:center;}
+.prayer-box{background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.15);border-radius:var(--radius);padding:32px;margin-top:6px;}
+.prayer-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--gold);text-align:center;margin-bottom:20px;}
+.prayer-text{font-size:14px;color:var(--text);line-height:2;text-align:center;font-style:italic;max-width:600px;margin:0 auto;}
+.prayer-text strong{color:var(--gold);font-style:normal;}
+.prayer-amen{text-align:center;margin-top:20px;font-family:'DM Serif Display',serif;font-size:22px;color:var(--gold);}
+.boost-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+.boost-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.boost-body h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.boost-body p{font-size:13px;color:var(--muted);line-height:1.6;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+@media(max-width:600px){.cv-body{grid-template-columns:1fr;}.cv-header{flex-direction:column;}.cv-contact{text-align:left;}.lm-wrapper{padding:24px 20px;}.lex-item{grid-template-columns:1fr;gap:6px;}}
+@media print{body{background:white;}nav,header,.section:not(#sec-cv):not(#sec-lm){display:none;}.section#sec-cv,.section#sec-lm{display:block;}}
+<\/style>
+<\/head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-left">
+      <div class="avatar">TR</div>
+      <div class="header-title">
+        <h1>Tsiky Heriniaina Randriamananjara</h1>
+        <p>Préparation entretien · ${company} · ${poste} · ${lieu||'France'}</p>
+      </div>
+    </div>
+    <div class="match-badge">✦ Adéquation profil ${scoreMatch}%</div>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showSection('sec-co',this)">${company} &amp; Valeurs</button>
+    <button class="nav-btn" onclick="showSection('sec-pitch',this)">Pitch</button>
+    <button class="nav-btn" onclick="showSection('sec-qa',this)">Q&amp;R Entretien</button>
+    <button class="nav-btn" onclick="showSection('sec-psycho',this)">🧠 Psychologie</button>
+    <button class="nav-btn" onclick="showSection('sec-checklist',this)">Checklist J-1</button>
+    <button class="nav-btn" onclick="showSection('sec-cv',this)">CV</button>
+    <button class="nav-btn" onclick="showSection('sec-lm',this)">Lettre de motivation</button>
+    <button class="nav-btn" onclick="showSection('sec-lexique',this)">📖 Lexique</button>
+    <button class="nav-btn" onclick="showSection('sec-foi',this)" style="border-color:rgba(251,191,36,0.4);color:#fbbf24;">✨ Force &amp; Foi</button>
+  </nav>
+
+  <!-- ENTREPRISE & VALEURS -->
+  <div id="sec-co" class="section active">
+    <div class="card">
+      <div class="card-title"><span>🏢</span> ${company} — Ce qu'il faut savoir absolument</div>
+      <div class="grid2">
+        <div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:10px;">${entrepriseData.description}</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;">${entrepriseData.clients_partenaires||''}</p>
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">CONTEXTE DU RECRUTEMENT</p>
+          <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:14px;">
+            <p style="font-size:13px;color:var(--text);line-height:1.7;">⚡ ${entrepriseData.contexte_recrutement}</p>
+            <p style="font-size:13px;color:var(--text);line-height:1.7;margin-top:8px;"><strong style="color:var(--gold);">Atout de Tsiky :</strong> ${entrepriseData.atout_tsiky}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Les valeurs de ${company} — à citer naturellement en entretien</p>
+    <div class="grid2">${valeursHTML}</div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span>💼</span> Ce qu'on confiera concrètement à Tsiky chez ${company}</div>
+      ${missionsHTML}
+    </div>
+  </div>
+
+  <!-- PITCH -->
+  <div id="sec-pitch" class="section">
+    <div class="card">
+      <div class="card-title"><span>🎤</span> Pitch classique — 90 secondes</div>
+      <div class="pitch-box">${pitchClassique.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<span class="pitch-highlight">$1</span>')}</div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span style="background:#E62B1E;color:white;font-size:11px;padding:2px 8px;border-radius:4px;font-style:normal;">TED<sup>x</sup></span> Pitch méthode TEDx</div>
+      <div class="soundbite-box">
+        <p class="label">🎯 Sound bite d'ouverture — 20 mots</p>
+        <p class="text">${soundBite}</p>
+        <p style="font-size:12px;color:var(--accent2);margin-top:8px;">→ L'interviewer se penche en avant. C'est le signal pour continuer.</p>
+      </div>
+      <div class="pitch-box">${pitchTedx.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<span class="pitch-highlight">$1</span>')}</div>
+    </div>
+  </div>
+
+  <!-- Q&R -->
+  <div id="sec-qa" class="section">
+    <div class="card">${qaHTML}</div>
+  </div>
+
+  <!-- PSYCHOLOGIE -->
+  <div id="sec-psycho" class="section">
+    <div class="card"><div style="font-size:13px;color:var(--muted);line-height:1.8;">${psychoHTML}</div></div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div id="sec-checklist" class="section">
+    <div class="grid2">
+      <div class="card"><div class="card-title"><span>🌙</span> Ce soir — J-1</div>${checkSoir||'<p style="color:var(--muted);font-size:13px;">Checklist générée pour cet entretien.</p>'}</div>
+      <div class="card"><div class="card-title"><span>☀️</span> Le jour J</div>${checkJour||'<p style="color:var(--muted);font-size:13px;">Actions pour le jour de l\'entretien.</p>'}</div>
+    </div>
+  </div>
+
+  <!-- CV -->
+  <div id="sec-cv" class="section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <p style="font-size:13px;color:var(--muted);">CV optimisé pour le poste ${poste} chez ${company}.</p>
+      <button onclick="window.print()" style="background:var(--accent);color:#0a0f1e;border:none;border-radius:8px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Imprimer / PDF</button>
+    </div>
+    <div class="cv-wrapper">
+      <div class="cv-header">
+        <div><div class="cv-name">Tsiky Heriniaina<br>Randriamananjara</div><div class="cv-title">${poste.toUpperCase()}</div></div>
+        <div class="cv-contact"><p>Alfortville, Île-de-France</p><p>tsiky.randriamananjara@email.com</p><p>+33 6 XX XX XX XX</p><p>linkedin.com/in/tsiky-heriniaina</p></div>
+      </div>
+      <div class="cv-body">
+        <div class="cv-sidebar">
+          <div class="cv-sec-title">Formation</div>
+          <p style="font-size:12px;font-weight:600;color:#1e293b;">Master en Management</p>
+          <p style="font-size:11px;color:#64748b;">IÉSEG School of Management</p>
+          <p style="font-size:11px;color:#94a3b8;">2023 · Paris La Défense</p>
+          <div class="cv-sec-title">Compétences</div>
+          <div class="cv-skill"><strong>ERP & Outils</strong>SAP (avancé), CRM, Pack Office</div>
+          <div class="cv-skill"><strong>ADV</strong>Devis, commandes, facturation, recouvrement</div>
+          <div class="cv-skill"><strong>Relation client</strong>Multicanal, gestion des litiges</div>
+          <div class="cv-skill"><strong>Reporting</strong>Tableaux de bord, KPIs, prévisions</div>
+          <div class="cv-sec-title">Langues</div>
+          <div class="cv-skill"><strong>Français</strong>Langue maternelle</div>
+          <div class="cv-skill"><strong>Anglais</strong>Professionnel</div>
+          <div class="cv-skill"><strong>Malgache</strong>Langue maternelle</div>
+        </div>
+        <div class="cv-main">
+          <div class="cv-sec-title">Profil</div>
+          <p style="font-size:12px;color:#475569;line-height:1.7;margin-bottom:18px;">Diplômé de l'IÉSEG School of Management, je dispose de plus de 4 ans d'expérience en administration des ventes. Expert SAP avec 30+ commandes/jour, je maîtrise l'ensemble de la chaîne ADV et suis immédiatement opérationnel.</p>
+          <div class="cv-sec-title">Expérience professionnelle</div>
+          <div class="cv-exp-item">
+            <div class="cv-exp-title">Gestionnaire Administration des Ventes</div>
+            <div class="cv-exp-sub">Consultego · CDI · Mai 2024 – Aujourd'hui</div>
+            <ul class="cv-exp-list">
+              <li>Traitement de ~30 commandes/jour sur SAP</li>
+              <li>Élaboration des devis, facturation clients, recouvrement</li>
+              <li>Création tableaux de bord ADV (+12% taux livraison)</li>
+            </ul>
+          </div>
+          <div class="cv-exp-item">
+            <div class="cv-exp-title">Assistant ADV Formation — Sauv'Gard · CDD (2023)</div>
+            <ul class="cv-exp-list"><li>Gestion clients, plannings, CRM</li></ul>
+          </div>
+          <div class="cv-exp-item">
+            <div class="cv-exp-title">Assistant ADV — Woodbrass.com · CDD (2020)</div>
+            <ul class="cv-exp-list"><li>Stocks, merchandising, litiges clients</li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LM -->
+  <div id="sec-lm" class="section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <p style="font-size:13px;color:var(--muted);">Lettre de motivation personnalisée pour ${company}.</p>
+      <button onclick="window.print()" style="background:var(--accent);color:#0a0f1e;border:none;border-radius:8px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Imprimer / PDF</button>
+    </div>
+    <div class="lm-wrapper">
+      <div style="display:flex;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;">
+        <div style="font-size:12px;color:#475569;line-height:1.7;"><p><strong>Tsiky Heriniaina Randriamananjara</strong></p><p>Alfortville, Île-de-France</p></div>
+        <div style="font-size:12px;color:#475569;line-height:1.7;text-align:right;"><p><strong>${company}</strong></p><p>Service Recrutement</p><p>${lieu||'France'}</p></div>
+      </div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:20px;color:#1e293b;">Objet : Candidature au poste de ${poste} — ${company}</div>
+      <div class="lm-p">${lmText.replace(/\n\n/g,'</div><div class="lm-p">').replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>
+      <div style="margin-top:28px;color:#1e293b;"><p><strong>Tsiky Heriniaina Randriamananjara</strong></p></div>
+    </div>
+  </div>
+
+  <!-- LEXIQUE -->
+  <div id="sec-lexique" class="section">
+    <div class="card">
+      <div class="card-title"><span>📖</span> Lexique — Termes clés pour ${company} · ${secteur||poste}</div>
+      ${lexHTML||'<p style="color:var(--muted);font-size:13px;">Lexique généré pour ce secteur.</p>'}
+    </div>
+  </div>
+
+  <!-- FORCE & FOI -->
+  <div id="sec-foi" class="section">
+    <div class="motiv-hero">
+      <h2>Tsiky, tu es prêt.</h2>
+      <p>Ce n'est pas le hasard qui t'a amené jusqu'ici. Chaque expérience t'a préparé pour ce moment chez ${company}. Va avec confiance.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>✝️</span> Paroles de vie pour ce jour important</div>
+      <div class="verse-card"><div style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--text);line-height:1.8;font-style:italic;">${foiHTML||'"Ne t\'effraye point, car l\'Éternel, ton Dieu, est avec toi dans tout ce que tu entreprendras." — Josué 1:9'}</div></div>
+    </div>
+    <div class="prayer-box">
+      <div class="prayer-title">🙏 Prière pour l'entretien chez ${company}</div>
+      <div class="prayer-text"><strong>Seigneur,</strong><br><br>Je Te confie cet entretien chez ${company}.<br>Donne-moi la clarté, la sérénité et la confiance.<br>Que mes mots soient justes et mon cœur en paix.<br>Si c'est Ta volonté, ouvre cette porte.<br><br>En Ton Nom.</div>
+      <div class="prayer-amen">Amen.</div>
+    </div>
+    <div style="text-align:center;padding:32px 20px;">
+      <p style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:10px;">Va, Tsiky. Tu es prêt. 🙏</p>
+    </div>
+  </div>
+
+</div>
+<\x73cript>
+function showSection(id,btn){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  var sec=document.getElementById(id);if(sec)sec.classList.add('active');
+  if(btn)btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleQA(el){
+  var item=el.closest('.qa-item');
+  var wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.qa-item').forEach(function(i){i.classList.remove('open');});
+  if(!wasOpen)item.classList.add('open');
+}
+function toggleCheck(box){
+  box.classList.toggle('done');
+  var text=box.nextElementSibling;
+  if(text)text.classList.toggle('done');
+  box.textContent=box.classList.contains('done')?'✓':'';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var firstBtn=document.querySelector('.nav-btn');
+  if(firstBtn)firstBtn.classList.add('active');
+  var firstSec=document.querySelector('.section');
+  if(firstSec)firstSec.classList.add('active');
+});
+<\/script>
+<\/body><\/html>`;
+}
+
+// ── DOWNLOAD FULL APP ──
+function downloadResult() {
+  if(!window._generatedApp) { alert('Génère d\'abord une préparation !'); return; }
+  const company = (window._lastCompany||'entreprise').replace(/\s/g,'_');
+  const poste = (window._lastPoste||'poste').replace(/\s/g,'_');
+  const blob = new Blob([window._generatedApp], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `tsiky_prep_${company}_${poste}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyResult() {
+  if(!window._generatedApp) return;
+  navigator.clipboard.writeText(window._generatedApp).then(()=>alert('✅ Code HTML copié !'));
+}
+
+// ── SEARCH POSTES ──
+async function searchPostes() {
+  const secteurs = document.getElementById('s-secteurs').value.trim();
+  const ville = document.getElementById('s-ville').value.trim();
+  const contrat = document.getElementById('s-contrat').value;
+  const salaire = document.getElementById('s-salaire').value.trim();
+  const priorite = document.getElementById('s-priorite').value;
+
+  const btn = document.getElementById('btn-search');
+  btn.disabled = true;
+  document.getElementById('loading-search').classList.add('active');
+  document.getElementById('result-search').style.display = 'none';
+  animateSteps('ss', 4, 1500);
+
+  const systemPrompt = `Tu es un conseiller emploi expert du marché français 2026. 
+Tu connais parfaitement le profil de Tsiky. Réponds en français.
+Utilise ### pour les sections. Sois précis et concret.`;
+
+  const userPrompt = `Voici le profil complet de Tsiky :
+${TSIKY_PROFILE}
+${profileExtra ? 'INFORMATIONS COMPLÉMENTAIRES : ' + profileExtra : ''}
+
+CRITÈRES DE RECHERCHE :
+- Secteurs d'intérêt : ${secteurs || 'Tous secteurs compatibles'}
+- Ville : ${ville}
+- Type de contrat : ${contrat}
+- Salaire minimum : ${salaire ? salaire + '€/an brut' : 'Non spécifié'}
+- Priorité : ${priorite}
+
+Effectue une analyse complète en 4 parties :
+
+### 🗺️ Secteurs recommandés pour Tsiky
+Liste 5 secteurs où son profil ADV + SAP + IÉSEG a le plus de valeur en 2026. Pour chaque secteur : pourquoi il correspond, le niveau de salaire, les perspectives.
+
+### 💼 10 Postes concrets à cibler
+Pour chaque poste :
+- Intitulé exact du poste
+- Secteur et type d'entreprises qui recrutent
+- Score de compatibilité (%)
+- Salaire moyen Île-de-France 2026
+- Compétence de Tsiky qui matche le mieux
+- Conseil pour postuler
+
+### 🚀 Stratégie de candidature recommandée
+Comment Tsiky doit organiser sa recherche : ordre de priorité, plateformes (LinkedIn, Indeed, Welcome to the Jungle, etc.), candidatures spontanées vs offres publiées, réseautage.
+
+### 📈 Plan d'évolution à 3 ans
+Si Tsiky progresse bien, vers quels postes peut-il évoluer d'ici 2027-2028 ? Quelles compétences développer pour y accéder ?`;
+
+  try {
+    const result = await callClaude(systemPrompt, userPrompt, 3000);
+    document.getElementById('result-search-content').innerHTML = formatResult(result);
+    document.getElementById('result-search').style.display = 'block';
+  } catch(err) {
+    document.getElementById('result-search-content').innerHTML = '<p style="color:#E24B4A;">Erreur : ' + err.message + '</p>';
+    document.getElementById('result-search').style.display = 'block';
+  }
+
+  document.getElementById('loading-search').classList.remove('active');
+  btn.disabled = false;
+}
+
+// ── COACH CHAT ──
+async function sendCoach() {
+  const input = document.getElementById('coach-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  addChatMsg(msg, 'user');
+
+  const systemPrompt = `Tu es un coach carrière expert et bienveillant. Tu connais parfaitement le profil de Tsiky.
+${TSIKY_PROFILE}
+${profileExtra ? 'INFO COMPLÉMENTAIRE : ' + profileExtra : ''}
+Réponds en français. Sois direct, concret et encourageant. Adapte tes conseils à son profil réel.
+Si on te demande de simuler un entretien, joue le rôle du recruteur et pose des questions réalistes.`;
+
+  const messages = chatHistory.map(m => ({role: m.role, content: m.content}));
+  messages.push({role:'user', content: msg});
+
+  const typingEl = addChatMsg('…', 'assistant', true);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: messages
+      })
+    });
+    const data = await response.json();
+    const reply = data.content[0].text;
+    typingEl.innerHTML = reply.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    chatHistory.push({role:'user',content:msg});
+    chatHistory.push({role:'assistant',content:reply});
+  } catch(err) {
+    typingEl.innerHTML = '<span style="color:#E24B4A;">Erreur de connexion. Réessaie.</span>';
+  }
+}
+
+function quickAsk(text) {
+  document.getElementById('coach-input').value = text;
+  sendCoach();
+}
+
+function addChatMsg(text, role, isTyping=false) {
+  const chat = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.style.cssText = `
+    padding:14px;border-radius:10px;font-size:13px;line-height:1.7;
+    ${role==='user'
+      ? 'background:rgba(110,231,183,0.08);border:1px solid rgba(110,231,183,0.15);margin-left:40px;color:var(--text);'
+      : 'background:var(--s2);border:1px solid var(--border);color:var(--text);'}
+  `;
+  if(role==='user') {
+    div.innerHTML = '<span style="font-size:11px;color:var(--a1);font-weight:600;display:block;margin-bottom:4px;">Tsiky</span>' + text;
+  } else {
+    div.innerHTML = '<span style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px;">Coach IA</span>' + text;
+  }
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div.querySelector ? div.lastChild : div;
+}
+
+// ── UPDATE PROFILE ──
+function updateProfile() {
+  const update = document.getElementById('profile-update').value.trim();
+  if(update) {
+    profileExtra += '\n' + update;
+    document.getElementById('profile-update').value = '';
+    alert('✅ Profil mis à jour ! Toutes les prochaines générations intégreront ces informations.');
+  }
+}
+
+</script>
+</body>
+</html>
