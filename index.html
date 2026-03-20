@@ -777,38 +777,53 @@ async function generatePrep() {
     if(el) el.classList.add('visible');
   }, i * 4000));
 
-  const SYS = `Expert entretiens. Profil Tsiky: Master IÉSEG 2023, Gestionnaire ADV Consultego (CDI, SAP 30cmd/jour, facturation, devis, recouvrement), ex Sauv'Gard CDD 8mois, Woodbrass CDD 11mois. Compétences: SAP avancé, Excel TCD, CRM, relation client. Prétentions: 33-36k€. Réponds en français, sois concis.`;
+  const SYS = `Tu es un expert en préparation d'entretiens d'embauche. Profil de Tsiky Heriniaina Randriamananjara :
+- Master Management IÉSEG School of Management 2023, Paris
+- Gestionnaire ADV Consultego CDI mai 2024-aujourd'hui : SAP 30 commandes/jour, devis, facturation, recouvrement, tableaux de bord (+12% taux livraison)
+- Assistant ADV Sauv'Gard CDD avr-nov 2023 : emails clients, plannings, CRM
+- Assistant ADV Woodbrass CDD jan-nov 2020 : stocks, merchandising, litiges
+- Compétences : SAP avancé, Excel TCD RECHERCHEV, CRM, Pack Office, relation client multicanal
+- Langues : Français natif, Malgache natif, Anglais professionnel
+- Prétentions : 33-36k€ brut annuel, préavis 1 mois
+Réponds en français, personnalisé pour CETTE entreprise et CE poste.`;
 
   try {
     document.getElementById('step1').classList.add('visible');
     document.getElementById('step2').classList.add('visible');
     document.getElementById('step3').classList.add('visible');
 
-    // ── 1 SEUL APPEL COURT — sous 10 secondes ──
-    const r = await callClaude(SYS, `Entreprise:${company} Poste:${poste} Secteur:${secteur||'?'} Offre:${offre.substring(0,300)}
+    const r = await callClaude(SYS, `Entreprise:${company} | Poste:${poste} | Secteur:${secteur||'?'} | Lieu:${lieu||'France'}
+Offre: ${offre.substring(0,500)}
 
-Génère 7 blocs séparés par |||. JSON minifié, texte court:
+Génère exactement 7 blocs séparés par ||| uniquement, sans commentaires:
 
-BLOC1 JSON:{"description":"2 phrases","contexte_recrutement":"1 phrase","atout_tsiky":"1 phrase","siege":"${lieu||'France'}"}
+BLOC1 JSON une ligne:
+{"description":"2 phrases sur ${company} activité et taille","contexte_recrutement":"pourquoi ils recrutent ce poste maintenant","atout_tsiky":"atout principal de Tsiky pour CE poste","siege":"${lieu||'France'}"}
 |||
-BLOC2 JSON array 4 valeurs:[{"emoji":"","nom":"","tagline":"","description":"1 phrase","utilisation":"1 phrase"},...]
+BLOC2 JSON array 4 valeurs de ${company}:
+[{"emoji":"emoji","nom":"Valeur","tagline":"sous-titre","description":"2 phrases sur cette valeur chez ${company}","utilisation":"phrase que Tsiky peut dire en entretien"},...]
 |||
-BLOC3 JSON array 5 missions:[{"num":1,"titre":"","description":"1 phrase"},...]
+BLOC3 JSON array 5 missions concrètes chez ${company}:
+[{"num":1,"titre":"Mission","description":"ce que Tsiky fera concrètement au quotidien"},...]
 |||
-BLOC4 texte:
-SOUNDBITE:[20 mots J'aide...]
+BLOC4 texte pitch:
+SOUNDBITE:[exactement 20 mots commençant par J'aide, orienté bénéfice pour ${company}]
 ---
-CLASSIQUE:[3 phrases pitch Tsiky pour ${company}]
+CLASSIQUE:[pitch 90s: Diplômé IÉSEG 2023, 4 ans ADV, SAP 30cmd/jour chez Consultego, motivé par ${company} car...]
 ---
-TEDX:[3 phrases pitch orienté bénéfice ${company}]
+TEDX:[pitch 70s orienté About-You, commence par le soundbite, développe la valeur apportée à ${company}]
 |||
-BLOC5 JSON array 8 Q&R:[{"categorie":"","question":"","conseil":"1 phrase","reponse":"2 phrases"},...]
+BLOC5 JSON array 12 questions-réponses spécifiques à ${company}/${poste}:
+[{"categorie":"Ouverture|Technique|Comportemental|Salaire|Question inattendue","question":"question précise","conseil":"conseil en 1 phrase","reponse":"réponse complète 3-4 phrases basée sur le vrai profil de Tsiky avec exemples concrets"},...]
+Inclure obligatoirement: Parlez-moi de vous, Pourquoi ${company}, SAP/ERP, gestion pic commandes, réalisation dont fier, points faibles, prétentions salariales, disponibilité
 |||
-BLOC6 LM:4 paragraphes courts pour ${company}/${poste}
+BLOC6 lettre motivation 5 paragraphes formels pour ${company}/${poste} utilisant le vrai profil Tsiky
 |||
-BLOC7 JSON array 16 checklist:[{"moment":"soir","texte":""},{"moment":"jour","texte":""},...]
+BLOC7 JSON array 16 items checklist:
+[{"moment":"soir","texte":"action concrète J-1"},{"moment":"jour","texte":"action jour J"},...]
+8 soir + 8 jour, spécifiques à ${company}
 
-Réponds UNIQUEMENT les 7 blocs séparés par |||.`, 2500);
+Réponds UNIQUEMENT les 7 blocs séparés par |||.`, 4000);
 
     document.getElementById('step4').classList.add('visible');
     document.getElementById('step5').classList.add('visible');
