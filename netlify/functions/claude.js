@@ -1,5 +1,6 @@
 exports.handler = async function(event, context) {
 
+  // Timeout max Netlify plan gratuit = 26 secondes
   context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod !== 'POST') {
@@ -14,6 +15,10 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({ error: 'Clé API non configurée sur Netlify.' })
     };
   }
+
+  // AbortController pour gérer le timeout à 25 secondes
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
 
   try {
     const body = JSON.parse(event.body);
@@ -30,9 +35,11 @@ exports.handler = async function(event, context) {
         max_tokens: body.max_tokens || 4000,
         system: body.system || '',
         messages: body.messages || []
-      })
+      }),
+      signal: controller.signal
     });
 
+    clearTimeout(timeout);
     const data = await response.json();
 
     return {
@@ -45,9 +52,12 @@ exports.handler = async function(event, context) {
     };
 
   } catch (error) {
+    clearTimeout(timeout);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message })
     };
   }
 };
+
+
