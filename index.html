@@ -777,48 +777,38 @@ async function generatePrep() {
     if(el) el.classList.add('visible');
   }, i * 4000));
 
-  const SYS = `Tu es un expert en préparation d'entretiens d'embauche. Tu connais parfaitement le profil de Tsiky.
-PROFIL TSIKY :
-${TSIKY_PROFILE}
-${profileExtra ? 'INFO COMPLÉMENTAIRE : ' + profileExtra : ''}
-CONTEXTE ENTRETIEN : Entreprise=${company}, Poste=${poste}, Secteur=${secteur||'?'}, Lieu=${lieu||'?'}
-OFFRE : ${offre}
-${context ? 'CONTEXTE : '+context : ''}
-Réponds UNIQUEMENT en français. Sois très précis et personnalisé pour CETTE entreprise et CE poste.`;
+  const SYS = `Expert entretiens. Profil Tsiky: Master IÉSEG 2023, Gestionnaire ADV Consultego (CDI, SAP 30cmd/jour, facturation, devis, recouvrement), ex Sauv'Gard CDD 8mois, Woodbrass CDD 11mois. Compétences: SAP avancé, Excel TCD, CRM, relation client. Prétentions: 33-36k€. Réponds en français, sois concis.`;
 
   try {
     document.getElementById('step1').classList.add('visible');
     document.getElementById('step2').classList.add('visible');
     document.getElementById('step3').classList.add('visible');
 
-    // ── 1 SEUL APPEL — plus rapide, évite le timeout ──
-    const r = await callClaude(SYS, `Génère 7 blocs séparés par |||:
+    // ── 1 SEUL APPEL COURT — sous 10 secondes ──
+    const r = await callClaude(SYS, `Entreprise:${company} Poste:${poste} Secteur:${secteur||'?'} Offre:${offre.substring(0,300)}
 
-BLOC 1 - Entreprise JSON:
-{"description":"[2 phrases sur ${company}]","contexte_recrutement":"[Pourquoi ils recrutent]","atout_tsiky":"[Atout clé de Tsiky]","clients_partenaires":"[clients connus]","siege":"[ville]"}
-|||
-BLOC 2 - Valeurs JSON array 4 valeurs:
-[{"emoji":"","nom":"","tagline":"","description":"","utilisation":""},...]
-|||
-BLOC 3 - Missions JSON array 5 missions:
-[{"num":1,"titre":"","description":""},...]
-|||
-BLOC 4 - Pitch texte:
-SOUNDBITE: [exactement 20 mots "J'aide..." orienté ${company}/${poste}]
----
-CLASSIQUE: [pitch 90s commence par "Diplômé de l'IÉSEG..."]
----
-TEDX: [pitch 70s commence par le soundbite]
-|||
-BLOC 5 - Q&R JSON array 10 questions:
-[{"categorie":"","question":"","conseil":"","reponse":""},...]
-|||
-BLOC 6 - Lettre motivation texte 4 paragraphes pour ${company}/${poste}
-|||
-BLOC 7 - Checklist JSON array 16 items:
-[{"moment":"soir","texte":""},{"moment":"jour","texte":""},...]
+Génère 7 blocs séparés par |||. JSON minifié, texte court:
 
-Réponds UNIQUEMENT avec les 7 blocs séparés par |||. Sois concis.`, 3000);
+BLOC1 JSON:{"description":"2 phrases","contexte_recrutement":"1 phrase","atout_tsiky":"1 phrase","siege":"${lieu||'France'}"}
+|||
+BLOC2 JSON array 4 valeurs:[{"emoji":"","nom":"","tagline":"","description":"1 phrase","utilisation":"1 phrase"},...]
+|||
+BLOC3 JSON array 5 missions:[{"num":1,"titre":"","description":"1 phrase"},...]
+|||
+BLOC4 texte:
+SOUNDBITE:[20 mots J'aide...]
+---
+CLASSIQUE:[3 phrases pitch Tsiky pour ${company}]
+---
+TEDX:[3 phrases pitch orienté bénéfice ${company}]
+|||
+BLOC5 JSON array 8 Q&R:[{"categorie":"","question":"","conseil":"1 phrase","reponse":"2 phrases"},...]
+|||
+BLOC6 LM:4 paragraphes courts pour ${company}/${poste}
+|||
+BLOC7 JSON array 16 checklist:[{"moment":"soir","texte":""},{"moment":"jour","texte":""},...]
+
+Réponds UNIQUEMENT les 7 blocs séparés par |||.`, 2500);
 
     document.getElementById('step4').classList.add('visible');
     document.getElementById('step5').classList.add('visible');
