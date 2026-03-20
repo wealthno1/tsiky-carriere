@@ -838,12 +838,16 @@ Uniquement les 3 blocs séparés par |||.`, 2000)
       atout_tsiky: `SAP avancé + 4 ans ADV = profil idéal.`,
       clients_partenaires: '', siege: lieu||'France'
     });
-    const valeursData = safeJSON(blocs[1], [
-      {emoji:'🎯',nom:'Excellence',tagline:'Viser le meilleur',description:'Qualité dans chaque mission.',utilisation:'Mon niveau d\'exigence correspond à votre culture.'},
-      {emoji:'🤝',nom:'Respect',tagline:'Bienveillance',description:'Écoute et professionnalisme.',utilisation:'Je traite chaque client avec soin.'},
-      {emoji:'🔥',nom:'Passion',tagline:'S\'investir',description:'Engagement total.',utilisation:'Je m\'investis au-delà des horaires quand nécessaire.'},
-      {emoji:'🧭',nom:'Esprit d\'équipe',tagline:'Ensemble',description:'Collaboration active.',utilisation:'Je partage mes méthodes avec mes collègues.'}
-    ]);
+    // Valeurs : si IKOS, utiliser les vraies valeurs. Sinon, utiliser celles générées par l'IA.
+    const ikosValeurs = [
+      {emoji:'🔥',nom:'Passion',tagline:'S\'investir au-delà du simple travail',description:`Chez IKOS, la passion signifie s'engager profondément dans ses missions et chercher l'excellence par conviction. C'est la différence entre "faire son travail" et "vouloir que ça marche vraiment".`,utilisation:`"Ce qui me passionne dans l'ADV, c'est la satisfaction de voir une commande livrée sans accroc et un client satisfait. Je m'investis au-delà des horaires quand une situation l'exige."`},
+      {emoji:'🤝',nom:'Respect',tagline:'Considérer chaque interlocuteur',description:`Le respect chez IKOS se manifeste dans les relations avec les clients, les collègues et les partenaires. C'est écouter avant de répondre, tenir ses engagements, traiter chaque demande avec sérieux.`,utilisation:`"J'applique le respect au quotidien : je rappelle toujours les clients dans les délais promis et je transmets à mes collègues les informations dont ils ont besoin sans qu'ils aient à relancer."`},
+      {emoji:'⭐',nom:'Excellence',tagline:'Viser le sans-faute à chaque mission',description:`L'excellence chez IKOS, c'est la volonté constante d'améliorer ses pratiques et de livrer un travail fiable, précis et de valeur pour le client ou l'équipe.`,utilisation:`"Mon exigence se traduit concrètement : zéro erreur de facturation, double contrôle sur les devis importants, et mise à jour proactive des tableaux de bord sans attendre qu'on me le demande."`},
+      {emoji:'🧭',nom:'Esprit d\'équipe',tagline:'Avancer ensemble, pas seul',description:`IKOS valorise une culture où chacun tire ses collègues vers le haut. Cela signifie partager les bonnes pratiques, accepter les retours et soutenir l'équipe dans les pics d'activité.`,utilisation:`"Lors de la migration SAP chez Consultego, j'ai formé deux nouveaux collègues aux process commandes en moins d'une semaine. Pour moi, la performance individuelle n'a de sens que si l'équipe progresse ensemble."`}
+    ];
+    const valeursData = company.toLowerCase().includes('ikos')
+      ? ikosValeurs
+      : safeJSON(blocs[1], ikosValeurs);
     const missionsData = safeJSON(blocs[2], [
       {num:1,titre:'Gestion commandes',description:'Traitement quotidien de A à Z sur SAP.'},
       {num:2,titre:'Facturation',description:'Émission et suivi des factures.'},
@@ -861,7 +865,7 @@ Uniquement les 3 blocs séparés par |||.`, 2000)
     // blocs[4-6] = r2 (Q&R, LM, checklist)
     const qrData = safeJSON(blocs[4], []);
     const psychoText = `### 🎭 Ce que cherche le recruteur de ${company}\nIl cherche un candidat opérationnel immédiatement, fiable et capable de s'intégrer dans son équipe.\n\n### 🧘 Comment adapter son comportement\nRester calme, structuré, citer des exemples chiffrés. Montrer la maîtrise SAP dès le début.\n\n### 👥 Type d'interviewer probable\nRH en premier entretien, puis manager ADV en second.\n\n### 🔍 Signaux positifs\nS'il pose des questions de suivi approfondies et parle au futur "quand vous serez chez nous..."\n\n### ⚡ Les 3 premières minutes\nPoignée de main ferme, sourire, sortir le CV spontanément, commencer par le sound bite TEDx.`;
-    const lmText = blocs[5] || '';
+    const lmText = blocs[5] || `Madame, Monsieur,\n\nDiplômé de l'IÉSEG School of Management avec un Master en Management obtenu en 2023, je me permets de vous adresser ma candidature pour le poste de ${poste} au sein de ${company}.\n\nFort de 4 ans d'expérience en administration des ventes, je maîtrise SAP à un niveau avancé avec un traitement quotidien d'environ 30 commandes chez Consultego. Cette expertise opérationnelle me permet d'être immédiatement opérationnel sur votre poste.\n\nMon parcours chez Sauv'Gard et Woodbrass m'a permis de développer des compétences complémentaires en gestion des litiges, relation client multicanale et analyse des besoins clients — des atouts directement mobilisables chez ${company}.\n\nConvaincu que mon profil correspond à vos attentes, je reste disponible pour un entretien à votre convenance.\n\nCordialement,\nTsiky Heriniaina Randriamananjara`;
     const lexiqueData = [
       {terme:'ERP',sigle:'Enterprise Resource Planning',definition:'Logiciel central gérant toutes les opérations de l\'entreprise.',exemple:`Chez ${company}, l'ERP centralise commandes, facturation et stocks.`},
       {terme:'ADV',sigle:'Administration des Ventes',definition:'Département gérant la chaîne devis→commande→livraison→facturation.',exemple:`Tsiky sera au cœur de l'ADV chez ${company}.`},
@@ -972,18 +976,18 @@ function buildFullApp(d) {
       <div class="mission-body"><h4>${m.titre||''}</h4><p>${m.description||''}</p></div>
     </div>`).join('');
 
-  // Build Q&R HTML
+  // Build Q&R HTML — toutes ouvertes par défaut (compatible iframe)
   const cats = {};
   (qrData||[]).forEach(q=>{ const c=q.categorie||'Général'; if(!cats[c]) cats[c]=[]; cats[c].push(q); });
   const qaHTML = Object.entries(cats).map(([cat,qs])=>`
     <p class="qa-cat">${cat}</p>
     ${qs.map(q=>`
-    <div class="qa-item">
-      <div class="qa-question" onclick="toggleQA(this)">
-        <p>${q.question||''}</p><div class="qa-arrow">▾</div>
+    <div class="qa-item open">
+      <div class="qa-question" onclick="toggleQA(this)" style="cursor:pointer;">
+        <p>${q.question||''}</p><div class="qa-arrow" style="transform:rotate(180deg);background:var(--accent);border-color:var(--accent);color:#0a0f1e;">▾</div>
       </div>
-      <div class="qa-answer">
-        <p>${q.conseil||''}</p>
+      <div class="qa-answer" style="display:block;padding:0 20px 18px;border-top:1px solid var(--border);padding-top:16px;">
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:8px;">${q.conseil||''}</p>
         <div class="example">${(q.reponse||'').replace(/\n/g,'<br>')}</div>
       </div>
     </div>`).join('')}`).join('');
