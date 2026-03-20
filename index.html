@@ -376,16 +376,18 @@ textarea{min-height:120px;line-height:1.6;}
       </div>
     </div>
 
-    <!-- Résultat app générée -->
+    <!-- Résultat app générée — affichage inline -->
     <div id="result-gen" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
         <p style="font-size:13px;color:var(--a1);font-weight:600;">✅ Préparation générée avec succès</p>
         <div class="output-actions" style="margin-top:0;">
-          <button class="btn-download" onclick="downloadResult()">⬇ Télécharger l'app HTML</button>
-          <button class="btn-secondary" onclick="copyResult()">Copier le HTML</button>
+          <button class="btn-download" onclick="downloadResult()">⬇ Télécharger</button>
+          <button class="btn-secondary" onclick="document.getElementById('inline-app').scrollIntoView({behavior:'smooth'})">👁 Voir l'app</button>
         </div>
       </div>
-      <div class="result-box" id="result-content"></div>
+      <div id="result-content"></div>
+      <!-- App inline avec tous les onglets -->
+      <div id="inline-app" style="margin-top:16px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;"></div>
     </div>
   </div>
 
@@ -904,16 +906,28 @@ Réponds UNIQUEMENT avec les 7 blocs séparés par |||. Sois concis.`, 3000);
     window._lastCompany = company;
     window._lastPoste = poste;
 
+    // Affichage du résumé
     document.getElementById('result-content').innerHTML = `
-      <div style="text-align:center;padding:20px;">
-        <div style="font-size:48px;margin-bottom:12px;">✅</div>
-        <p style="font-size:15px;font-weight:600;color:#6ee7b7;margin-bottom:6px;">Application complète générée !</p>
-        <p style="font-size:13px;color:#8892a4;margin-bottom:16px;">
-          ${company} · ${poste} · ${scoreMatch}% adéquation<br>
-          9 onglets créés : Entreprise & Valeurs · Pitch · Q&R · Psychologie · CV · LM · Lexique · Checklist · Force & Foi
-        </p>
-        <p style="font-size:12px;color:#8892a4;">Télécharge l'app HTML → dépose sur Netlify → partage le lien à Tsiky en 30 secondes.</p>
+      <div style="display:flex;align-items:center;gap:16px;background:rgba(110,231,183,0.06);border:1px solid rgba(110,231,183,0.15);border-radius:10px;padding:16px;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="font-size:36px;">✅</div>
+        <div>
+          <p style="font-size:15px;font-weight:600;color:#6ee7b7;margin-bottom:4px;">${company} · ${poste} · ${scoreMatch}% adéquation</p>
+          <p style="font-size:12px;color:#8892a4;">9 onglets : Entreprise & Valeurs · Pitch · Q&R · Psychologie · CV · LM · Lexique · Checklist · Force & Foi</p>
+        </div>
       </div>`;
+
+    // Injection directe dans un iframe — Tsiky voit tout sans télécharger
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;height:800px;border:none;border-radius:12px;';
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    const iframeContainer = document.getElementById('inline-app');
+    iframeContainer.innerHTML = '';
+    iframeContainer.appendChild(iframe);
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(appHTML);
+    doc.close();
+
     document.getElementById('result-gen').style.display = 'block';
 
   } catch(err) {
