@@ -777,58 +777,53 @@ async function generatePrep() {
     if(el) el.classList.add('visible');
   }, i * 4000));
 
-  const SYS = `Tu es un expert en préparation d'entretiens d'embauche. Profil de Tsiky Heriniaina Randriamananjara :
-- Master Management IÉSEG School of Management 2023, Paris
-- Gestionnaire ADV Consultego CDI mai 2024-aujourd'hui : SAP 30 commandes/jour, devis, facturation, recouvrement, tableaux de bord (+12% taux livraison)
-- Assistant ADV Sauv'Gard CDD avr-nov 2023 : emails clients, plannings, CRM
-- Assistant ADV Woodbrass CDD jan-nov 2020 : stocks, merchandising, litiges
-- Compétences : SAP avancé, Excel TCD RECHERCHEV, CRM, Pack Office, relation client multicanal
-- Langues : Français natif, Malgache natif, Anglais professionnel
-- Prétentions : 33-36k€ brut annuel, préavis 1 mois
-Réponds en français, personnalisé pour CETTE entreprise et CE poste.`;
+  const SYS = `Expert entretiens. Tsiky: Master IÉSEG 2023, ADV Consultego CDI SAP 30cmd/jour, ex Sauv'Gard Woodbrass. SAP avancé, Excel, CRM. Prétentions 33-36k€. Réponds en français.`;
 
   try {
     document.getElementById('step1').classList.add('visible');
     document.getElementById('step2').classList.add('visible');
     document.getElementById('step3').classList.add('visible');
 
-    const r = await callClaude(SYS, `Entreprise:${company} | Poste:${poste} | Secteur:${secteur||'?'} | Lieu:${lieu||'France'}
-Offre: ${offre.substring(0,500)}
+    // ── 2 APPELS PARALLÈLES — chacun sous 10 secondes ──
+    const ctx = `Entreprise:${company}|Poste:${poste}|Secteur:${secteur||'?'}|Lieu:${lieu||'France'}|Offre:${offre.substring(0,300)}`;
 
-Génère exactement 7 blocs séparés par ||| uniquement, sans commentaires:
+    const [r1, r2] = await Promise.all([
 
-BLOC1 JSON une ligne:
-{"description":"2 phrases sur ${company} activité et taille","contexte_recrutement":"pourquoi ils recrutent ce poste maintenant","atout_tsiky":"atout principal de Tsiky pour CE poste","siege":"${lieu||'France'}"}
+      callClaude(SYS, `${ctx}
+Génère 4 blocs séparés par |||:
+BLOC1 JSON une ligne:{"description":"2 phrases ${company}","contexte_recrutement":"1 phrase","atout_tsiky":"1 phrase SAP","siege":"${lieu||'France'}"}
 |||
-BLOC2 JSON array 4 valeurs de ${company}:
-[{"emoji":"emoji","nom":"Valeur","tagline":"sous-titre","description":"2 phrases sur cette valeur chez ${company}","utilisation":"phrase que Tsiky peut dire en entretien"},...]
+BLOC2 JSON 4 valeurs:[{"emoji":"e","nom":"n","tagline":"t","description":"2 phrases","utilisation":"1 phrase Tsiky en entretien"},...]
 |||
-BLOC3 JSON array 5 missions concrètes chez ${company}:
-[{"num":1,"titre":"Mission","description":"ce que Tsiky fera concrètement au quotidien"},...]
+BLOC3 JSON 5 missions:[{"num":1,"titre":"t","description":"1 phrase concret"},...]
 |||
-BLOC4 texte pitch:
-SOUNDBITE:[exactement 20 mots commençant par J'aide, orienté bénéfice pour ${company}]
+BLOC4 pitchs:
+SOUNDBITE:[20 mots J'aide pour ${company}]
 ---
-CLASSIQUE:[pitch 90s: Diplômé IÉSEG 2023, 4 ans ADV, SAP 30cmd/jour chez Consultego, motivé par ${company} car...]
+CLASSIQUE:[pitch 90s Diplômé IÉSEG, SAP 30cmd, motivé par ${company}]
 ---
-TEDX:[pitch 70s orienté About-You, commence par le soundbite, développe la valeur apportée à ${company}]
-|||
-BLOC5 JSON array 12 questions-réponses spécifiques à ${company}/${poste}:
-[{"categorie":"Ouverture|Technique|Comportemental|Salaire|Question inattendue","question":"question précise","conseil":"conseil en 1 phrase","reponse":"réponse complète 3-4 phrases basée sur le vrai profil de Tsiky avec exemples concrets"},...]
-Inclure obligatoirement: Parlez-moi de vous, Pourquoi ${company}, SAP/ERP, gestion pic commandes, réalisation dont fier, points faibles, prétentions salariales, disponibilité
-|||
-BLOC6 lettre motivation 5 paragraphes formels pour ${company}/${poste} utilisant le vrai profil Tsiky
-|||
-BLOC7 JSON array 16 items checklist:
-[{"moment":"soir","texte":"action concrète J-1"},{"moment":"jour","texte":"action jour J"},...]
-8 soir + 8 jour, spécifiques à ${company}
+TEDX:[pitch 70s About-You bénéfice ${company}]
+Uniquement les 4 blocs séparés par |||.`, 2000),
 
-Réponds UNIQUEMENT les 7 blocs séparés par |||.`, 4000);
+      callClaude(SYS, `${ctx}
+Génère 3 blocs séparés par |||:
+BLOC1 JSON 12 Q&R:[{"categorie":"cat","question":"q précise sur ${company}/${poste}","conseil":"1 phrase","reponse":"3-4 phrases avec exemples concrets profil Tsiky"},...]
+Catégories: Ouverture, Technique SAP, Comportemental, Salaire, Inattendue. Questions obligatoires: Parlez-moi de vous, Pourquoi ${company}, maîtrise SAP, gestion 30cmd/jour, réalisation fière, points faibles, prétentions 33-36k€, disponibilité
+|||
+BLOC2 lettre motivation 5 paragraphes formels ${company}/${poste} avec vrai profil Tsiky
+|||
+BLOC3 JSON 16 checklist:[{"moment":"soir","texte":"action J-1 spécifique ${company}"},{"moment":"jour","texte":"action jour J"},...]
+8 soir + 8 jour
+Uniquement les 3 blocs séparés par |||.`, 2000)
+
+    ]);
 
     document.getElementById('step4').classList.add('visible');
     document.getElementById('step5').classList.add('visible');
 
-    const blocs = r.split('|||').map(s=>s.trim());
+    const blocs1 = r1.split('|||').map(s=>s.trim());
+    const blocs2 = r2.split('|||').map(s=>s.trim());
+    const blocs = [...blocs1, ...blocs2]; // index 0-3 = r1, 4-6 = r2
 
     function safeJSON(str, fallback) {
       try {
@@ -862,6 +857,8 @@ Réponds UNIQUEMENT les 7 blocs séparés par |||.`, 4000);
     const pitchClassique = (pitchBlocs[1]||'').replace(/^CLASSIQUE:\s*/i,'').trim();
     const pitchTedx = (pitchBlocs[2]||'').replace(/^TEDX:\s*/i,'').trim() || soundBite;
 
+    // blocs[0-3] = r1 (entreprise, valeurs, missions, pitch)
+    // blocs[4-6] = r2 (Q&R, LM, checklist)
     const qrData = safeJSON(blocs[4], []);
     const psychoText = `### 🎭 Ce que cherche le recruteur de ${company}\nIl cherche un candidat opérationnel immédiatement, fiable et capable de s'intégrer dans son équipe.\n\n### 🧘 Comment adapter son comportement\nRester calme, structuré, citer des exemples chiffrés. Montrer la maîtrise SAP dès le début.\n\n### 👥 Type d'interviewer probable\nRH en premier entretien, puis manager ADV en second.\n\n### 🔍 Signaux positifs\nS'il pose des questions de suivi approfondies et parle au futur "quand vous serez chez nous..."\n\n### ⚡ Les 3 premières minutes\nPoignée de main ferme, sourire, sortir le CV spontanément, commencer par le sound bite TEDx.`;
     const lmText = blocs[5] || '';
