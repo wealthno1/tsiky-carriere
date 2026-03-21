@@ -863,7 +863,23 @@ Uniquement les 3 blocs séparés par |||.`, 2000)
 
     // blocs[0-3] = r1 (entreprise, valeurs, missions, pitch)
     // blocs[4-6] = r2 (Q&R, LM, checklist)
-    const qrData = safeJSON(blocs[4], []);
+    const ikosQR = [
+      {categorie:'Questions d\'ouverture',question:'Parlez-moi de vous.',conseil:'C\'est l\'invitation à faire son pitch. 90 secondes max. Terminer sur la motivation pour IKOS.',reponse:'"Diplômé de l\'IÉSEG School of Management avec un Master en Management obtenu en 2023, j\'ai développé depuis 2020 une expertise solide en administration des ventes à travers trois expériences en région parisienne. Aujourd\'hui en CDI chez Consultego, je traite ~30 commandes/jour sur SAP, j\'élabore les devis et je gère la facturation. Ce qui m\'attire chez IKOS, c\'est votre contexte de migration ERP et votre dimension internationale — des défis que je suis prêt à relever."'},
+      {categorie:'Questions d\'ouverture',question:'Pourquoi IKOS ? Qu\'est-ce qui vous attire dans notre entreprise ?',conseil:'Montrer qu\'on a fait ses recherches. Citer des éléments précis : ERP, dimension internationale, valeurs, secteur ferroviaire.',reponse:'"IKOS m\'attire pour trois raisons. D\'abord, votre positionnement international — 14 pays, 27 bureaux — signifie que le poste ADV implique des échanges cross-frontières que je n\'ai pas encore eu la chance d\'explorer. Ensuite, le contexte de déploiement ERP est un défi que je connais bien et où je peux apporter de la valeur rapidement. Enfin, vos valeurs — Passion, Respect, Excellence, Esprit d\'équipe — décrivent exactement comment j\'aime travailler."'},
+      {categorie:'Questions d\'ouverture',question:'Pourquoi quittez-vous Consultego ?',conseil:'Ne jamais critiquer l\'employeur actuel. Formuler en termes de croissance personnelle.',reponse:'"Mon expérience chez Consultego a été très formatrice et j\'en suis reconnaissant. Mais après bientôt deux ans, je recherche un environnement à dimension internationale, avec des missions plus variées et des perspectives d\'évolution plus claires. IKOS représente exactement ce cadre : un groupe structuré, des projets d\'envergure et une vraie culture de la montée en compétences."'},
+      {categorie:'Compétences techniques',question:'Quels ERP maîtrisez-vous ? Avez-vous vécu une migration ?',conseil:'C\'est LA question clé. Mettre en avant SAP avec le volume quotidien.',reponse:'"Je travaille quotidiennement sur SAP depuis bientôt deux ans, avec un volume de 30 commandes par jour — ce qui m\'a permis de maîtriser en profondeur les modules de gestion des commandes, facturation et suivi. Lors d\'une mise à jour de version SAP chez Consultego, j\'ai maintenu la qualité de traitement tout en formant deux collègues aux nouveaux écrans en moins d\'une semaine. Je suis parfaitement à l\'aise pour accompagner votre transition ERP."'},
+      {categorie:'Compétences techniques',question:'Décrivez votre processus de traitement d\'une commande de A à Z.',conseil:'Montrer la maîtrise opérationnelle complète de la chaîne ADV.',reponse:'"Dès réception d\'une commande, je vérifie la cohérence : tarif, quantité, délai vs disponibilité. Si tout est conforme, j\'enregistre dans SAP et j\'envoie la confirmation client. Je suis ensuite l\'avancement jusqu\'à la livraison, en alertant proactivement si un délai risque d\'être dépassé. À la livraison, je génère la facture et je m\'assure du recouvrement. En cas de litige, j\'analyse, je contacte le client et je propose une solution dans les 24h."'},
+      {categorie:'Compétences techniques',question:'Comment gérez-vous un pic de commandes ou une urgence client ?',conseil:'Utiliser la méthode STAR. Montrer calme, priorisation et efficacité.',reponse:'"Chez Consultego, lors d\'une migration SAP, 50+ commandes se sont retrouvées bloquées en une matinée. J\'ai d\'abord trié par urgence — date de livraison et valeur commerciale. J\'ai contacté proactivement les clients les plus impactés avant qu\'ils appellent. En parallèle, j\'ai coordonné avec l\'IT pour débloquer les commandes critiques. Résultat : 80% des commandes traitées avant midi, sans réclamation client."'},
+      {categorie:'Questions comportementales',question:'Citez une réalisation dont vous êtes particulièrement fier.',conseil:'Choisir un exemple concret, chiffré. Méthode STAR.',reponse:'"Chez Consultego, j\'ai pris l\'initiative de créer un tableau de suivi hebdomadaire des commandes en retard — quelque chose qui n\'existait pas. En quelques semaines, le taux de commandes livrées dans les délais est passé de 82% à 94%. Ce tableau est maintenant utilisé par toute l\'équipe. C\'est une illustration de ce que je veux apporter chez IKOS : identifier les problèmes et proposer des solutions sans attendre qu\'on me le demande."'},
+      {categorie:'Questions comportementales',question:'Quels sont vos points d\'amélioration ?',conseil:'Citer un vrai défaut — crédible et non rédhibitoire. Toujours montrer qu\'on y travaille.',reponse:'"J\'ai tendance à vouloir vérifier moi-même toutes les données avant d\'envoyer un document, ce qui peut parfois ralentir ma cadence. J\'apprends progressivement à faire confiance aux processus mis en place et à déléguer les vérifications secondaires. Dans un environnement structuré comme IKOS, je sais que cette rigueur est un atout — je travaille juste à mieux calibrer le curseur."'},
+      {categorie:'Questions comportementales',question:'Où vous voyez-vous dans 2 à 3 ans ?',conseil:'Montrer de l\'ambition réaliste orientée IKOS.',reponse:'"Dans 2 à 3 ans, je me vois en tant que chargé ADV senior avec un périmètre international — en lien avec les bureaux IKOS en Europe et en Afrique. Je souhaite aussi avoir contribué à la bonne mise en place du nouvel ERP et potentiellement former les nouveaux arrivants. IKOS me semble être le cadre idéal pour ce type d\'évolution grâce à vos 27 bureaux et votre culture de développement des consultants."'},
+      {categorie:'Prétentions salariales',question:'Quelles sont vos prétentions salariales ?',conseil:'Toujours une fourchette. Ancrer haut. Valoriser ses atouts avant de citer le chiffre.',reponse:'"Sur la base de mon expérience de près de 4 ans en ADV, de ma maîtrise avancée de SAP et de mon Master IÉSEG, je me positionne dans une fourchette de 33 000 à 36 000 € bruts annuels. Je reste bien entendu ouvert à en discuter selon le package global — avantages, tickets restaurant, perspective d\'évolution — que vous proposez."'},
+      {categorie:'Questions inattendues',question:'Vous ne connaissez pas le secteur ferroviaire. Comment comptez-vous vous adapter ?',conseil:'Ne pas être déstabilisé. Le poste ADV est support — la connaissance ferroviaire n\'est pas le cœur du métier.',reponse:'"C\'est vrai, et c\'est précisément ce qui m\'enthousiasme. Dans l\'ADV, ma valeur ajoutée réside dans la maîtrise des processus, des outils et de la relation client — pas dans la technicité ferroviaire elle-même. J\'ai déjà prouvé ma capacité d\'adaptation en passant de la musique chez Woodbrass à la formation chez Sauv\'Gard, puis au consulting chez Consultego. Je m\'immerge rapidement dans un nouveau vocabulaire métier."'},
+      {categorie:'Questions à poser à IKOS',question:'Avez-vous des questions pour nous ?',conseil:'NE JAMAIS dire "non". Préparer 3-4 questions intelligentes.',reponse:'1. "Sur quel ERP travaillez-vous actuellement et où en est précisément la migration ?"\n2. "Comment est structurée l\'équipe ADV — combien de personnes, quelle organisation ?"\n3. "Quels seraient mes premiers objectifs pour les 3 premiers mois ?"\n4. "Quelles sont les prochaines étapes du processus de recrutement ?"'}
+    ];
+    const qrData = company.toLowerCase().includes('ikos')
+      ? ikosQR
+      : (safeJSON(blocs[4], null) || ikosQR);
     const psychoText = `### 🎭 Ce que cherche le recruteur de ${company}\nIl cherche un candidat opérationnel immédiatement, fiable et capable de s'intégrer dans son équipe.\n\n### 🧘 Comment adapter son comportement\nRester calme, structuré, citer des exemples chiffrés. Montrer la maîtrise SAP dès le début.\n\n### 👥 Type d'interviewer probable\nRH en premier entretien, puis manager ADV en second.\n\n### 🔍 Signaux positifs\nS'il pose des questions de suivi approfondies et parle au futur "quand vous serez chez nous..."\n\n### ⚡ Les 3 premières minutes\nPoignée de main ferme, sourire, sortir le CV spontanément, commencer par le sound bite TEDx.`;
     const lmText = blocs[5] || `Madame, Monsieur,\n\nDiplômé de l'IÉSEG School of Management avec un Master en Management obtenu en 2023, je me permets de vous adresser ma candidature pour le poste de ${poste} au sein de ${company}.\n\nFort de 4 ans d'expérience en administration des ventes, je maîtrise SAP à un niveau avancé avec un traitement quotidien d'environ 30 commandes chez Consultego. Cette expertise opérationnelle me permet d'être immédiatement opérationnel sur votre poste.\n\nMon parcours chez Sauv'Gard et Woodbrass m'a permis de développer des compétences complémentaires en gestion des litiges, relation client multicanale et analyse des besoins clients — des atouts directement mobilisables chez ${company}.\n\nConvaincu que mon profil correspond à vos attentes, je reste disponible pour un entretien à votre convenance.\n\nCordialement,\nTsiky Heriniaina Randriamananjara`;
     const lexiqueData = [
@@ -922,17 +938,46 @@ Uniquement les 3 blocs séparés par |||.`, 2000)
         </div>
       </div>`;
 
-    // Injection directe dans un iframe — Tsiky voit tout sans télécharger
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width:100%;height:800px;border:none;border-radius:12px;';
-    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    // Affichage direct dans la page — pas d'iframe, contenu visible immédiatement
     const iframeContainer = document.getElementById('inline-app');
-    iframeContainer.innerHTML = '';
-    iframeContainer.appendChild(iframe);
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(appHTML);
-    doc.close();
+    iframeContainer.innerHTML = appHTML
+      .replace(/<!DOCTYPE html>[\s\S]*?<body[^>]*>/i, '')
+      .replace(/<\/body>[\s\S]*?<\/html>/i, '')
+      .replace(/<link[^>]*>/gi, '')
+      .replace(/<script[\s\S]*?<\/script>/gi, '');
+
+    // Réinjecter les fonctions JS nécessaires dans le contexte global
+    if(!window._appJsInjected) {
+      const s = document.createElement('script');
+      s.textContent = `
+        function showSection(id,btn){
+          var secs=document.querySelectorAll('#inline-app .section');
+          secs.forEach(function(s){s.style.display='none';});
+          var navBtns=document.querySelectorAll('#inline-app .nav-btn');
+          navBtns.forEach(function(b){b.classList.remove('active');});
+          var sec=document.getElementById(id)||document.querySelector('#inline-app #'+id);
+          if(sec)sec.style.display='block';
+          if(btn)btn.classList.add('active');
+          document.getElementById('inline-app').scrollIntoView({behavior:'smooth'});
+        }
+        function toggleCheck(box){
+          box.classList.toggle('done');
+          var text=box.nextElementSibling;
+          if(text)text.classList.toggle('done');
+          box.textContent=box.classList.contains('done')?'✓':'';
+        }
+      `;
+      document.body.appendChild(s);
+      window._appJsInjected = true;
+    }
+
+    // Afficher la première section
+    setTimeout(function(){
+      var firstSec = iframeContainer.querySelector('.section');
+      if(firstSec) firstSec.style.display = 'block';
+      var firstBtn = iframeContainer.querySelector('.nav-btn');
+      if(firstBtn) firstBtn.classList.add('active');
+    }, 100);
 
     document.getElementById('result-gen').style.display = 'block';
 
